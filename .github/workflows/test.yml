@@ -1,0 +1,19 @@
+name: test
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+on:
+  pull_request: { types: [opened, reopened, synchronize, ready_for_review] }
+  push: { branches: [main] }
+
+  unit-tests:
+    uses: vapor/ci/.github/workflows/run-unit-tests.yml@main
+    with:
+      with_api_check: ${{ github.event_name == 'pull_request' }}
+      warnings_as_errors: true
+      with_linting: true
+      with_windows: false
+      with_musl: true
+      with_android: true
+      ios_scheme_name: auth
+    secrets: inherit
