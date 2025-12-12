@@ -14,7 +14,7 @@ let package = Package(
         .target(
             name: "Authentication",
             dependencies: [
-                .product(name: "CryptoExtras", package: "swift-crypto"),
+                .product(name: "Crypto", package: "swift-crypto"),
             ],
             swiftSettings: extraSettings
         ),
