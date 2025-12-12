@@ -5,28 +5,28 @@ import Foundation
 #endif
 internal import CVaporAuthBcrypt
 
-// MARK: Bcrypt
+// MARK: bcrypt
 
-/// Creates and verifies Bcrypt hashes.
+/// Creates and verifies bcrypt hashes.
 ///
 /// Use BcryptDigest to create hashes for sensitive information like passwords.
 ///
 ///     try BcryptDigest.hash("vapor", cost: 12)
 ///
-/// Bcrypt uses a random salt each time it creates a hash. To verify hashes, use the `verify(_:matches)` method.
+/// bcrypt uses a random salt each time it creates a hash. To verify hashes, use the `verify(_:matches)` method.
 ///
 ///     let hash = try BcryptDigest.hash("vapor", cost: 12)
 ///     try BcryptDigest.verify("vapor", created: hash) // true
 ///
-/// https://en.wikipedia.org/wiki/Bcrypt
+/// https://en.wikipedia.org/wiki/bcrypt
 public enum BcryptDigest: Sendable {
-    /// Creates a new Bcrypt hash with a randomly generated salt.
+    /// Creates a new bcrypt hash with a randomly generated salt.
     /// The result can be stored in a database.
     /// parameters:
     ///     - plaintext: Plaintext data to hash.
     ///     - cost: Desired complexity. Larger `cost` values take longer to hash and verify. Default is 12.
     /// - throws: ``BcryptError`` if hashing fails or if data conversion fails.
-    /// - returns: Newly created Bcrypt hash.
+    /// - returns: Newly created bcrypt hash.
     public static func hash(_ plaintext: String, cost: Int = 12) throws -> String {
         guard cost >= BCRYPT_MINLOGROUNDS && cost <= 31 else {
             throw BcryptError.invalidCost
@@ -35,7 +35,7 @@ public enum BcryptDigest: Sendable {
     }
 
 
-    /// Creates a Bcrypt hash using a provided salt.
+    /// Creates a bcrypt hash using a provided salt.
     ///
     /// This method allows you to specify your own salt for hashing. The salt can be either:
     /// - A 22-character raw salt (e.g., `J/dtt5ybYUTCJ/dtt5ybYO`)
@@ -49,8 +49,8 @@ public enum BcryptDigest: Sendable {
     ///
     /// - Parameters:
     ///   - plaintext: The plaintext string to hash.
-    ///   - salt: A valid Bcrypt salt (22 or 29 characters).
-    /// - Returns: The Bcrypt hash string.
+    ///   - salt: A valid bcrypt salt (22 or 29 characters).
+    /// - Returns: The bcrypt hash string.
     /// - Throws: ``BcryptError/invalidSalt`` if the salt format is invalid, or ``BcryptError/hashFailure`` if hashing fails.
     public static func hash(_ plaintext: String, salt: String) throws -> String {
         guard isSaltValid(salt) else {
@@ -97,16 +97,16 @@ public enum BcryptDigest: Sendable {
                 .dropFirst(originalAlgorithm.revisionCount)
     }
 
-    /// Verifies an existing BCrypt hash matches the supplied plaintext value. Verification works by parsing the salt and version from
+    /// Verifies an existing bcrypt hash matches the supplied plaintext value. Verification works by parsing the salt and version from
     /// the existing digest and using that information to hash the plaintext data. If hash digests match, this method returns `true`.
     ///
-    ///     let hash = try BCrypt.hash("vapor", cost: 4)
-    ///     try BCrypt.verify("vapor", created: hash) // true
-    ///     try BCrypt.verify("foo", created: hash) // false
+    ///     let hash = try BcryptDigest.hash("vapor", cost: 4)
+    ///     try BcryptDigest.verify("vapor", created: hash) // true
+    ///     try BcryptDigest.verify("foo", created: hash) // false
     ///
     /// - parameters:
     ///     - plaintext: Plaintext data to digest and verify.
-    ///     - hash: Existing BCrypt hash to parse version, salt, and existing digest from.
+    ///     - hash: Existing bcrypt hash to parse version, salt, and existing digest from.
     /// - throws: `CryptoError` if hashing fails or if data conversion fails.
     /// - returns: `true` if the hash was created from the supplied plaintext data.
     public static func verify(_ plaintext: String, created hash: String) throws -> Bool {
@@ -192,13 +192,13 @@ public enum BcryptDigest: Sendable {
         return String(cString: encodedBytes)
     }
 
-    /// Specific BCrypt algorithm.
+    /// Specific bcrypt algorithm.
     private enum Algorithm: String, RawRepresentable {
         /// older version
         case _2a = "$2a$"
-        /// format specific to the crypt_blowfish BCrypt implementation, identical to `2b` in all but name.
+        /// format specific to the crypt_blowfish bcrypt implementation, identical to `2b` in all but name.
         case _2y = "$2y$"
-        /// latest revision of the official BCrypt algorithm, current default
+        /// latest revision of the official bcrypt algorithm, current default
         case _2b = "$2b$"
 
         /// Revision's length, including the `$` symbols
@@ -234,7 +234,7 @@ public enum BcryptError: Swift.Error, CustomStringConvertible, LocalizedError {
     }
 
     public var description: String {
-        return "Bcrypt error: \(self.reason)"
+        return "bcrypt error: \(self.reason)"
     }
 
     var reason: String {

@@ -15,7 +15,6 @@ let package = Package(
         .library(name: "Authentication", targets: ["Authentication"]),
     ],
     dependencies: [
-        // 🔑 Hashing (BCrypt, SHA, HMAC, etc), encryption, and randomness.
         .package(url: "https://github.com/apple/swift-crypto.git", from: "4.0.0"),
     ],
     targets: [

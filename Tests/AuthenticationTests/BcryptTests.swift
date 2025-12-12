@@ -1,7 +1,7 @@
 import Testing
 import Authentication
 
-@Suite("Bcrypt Tests")
+@Suite("bcrypt Tests")
 struct BcryptTests {
     @Test("Hash includes correct version prefix")
     func version() throws {
