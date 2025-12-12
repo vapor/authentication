@@ -1,4 +1,4 @@
-// swift-tools-version:5.0
+// swift-tools-version:6.2
 import PackageDescription
 
 let package = Package(
@@ -8,15 +8,15 @@ let package = Package(
     ],
     dependencies: [
         // 🔑 Hashing (BCrypt, SHA, HMAC, etc), encryption, and randomness.
-        .package(url: "https://github.com/vapor/crypto.git", .branch("master")),
-        
-        // 🖋 Swift ORM framework (queries, models, and relations) for building NoSQL and SQL database integrations.
-        .package(url: "https://github.com/vapor/fluent.git", .branch("master")),
-        // 💧 A server-side Swift web framework.
-        .package(url: "https://github.com/vapor/vapor.git", .branch("master")),
+        .package(url: "https://github.com/apple/swift-crypto.git", from: "4.0.0"),
     ],
     targets: [
-        .target(name: "Authentication", dependencies: ["Fluent", "Vapor"]),
-        .testTarget(name: "AuthenticationTests", dependencies: ["Authentication", "Vapor"]),
+        .target(
+            name: "Authentication",
+            dependencies: [
+                .product(name: "CryptoExtras", package: "swift-crypto"),
+            ]
+        ),
+        .testTarget(name: "AuthenticationTests", dependencies: ["Authentication"]),
     ]
 )
