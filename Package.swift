@@ -23,6 +23,7 @@ let package = Package(
         .target(
             name: "Authentication",
             dependencies: [
+                .target(name: "CVaporAuthBcrypt"),
                 .product(name: "Crypto", package: "swift-crypto"),
             ],
             swiftSettings: extraSettings
@@ -45,5 +46,5 @@ let extraSettings: [SwiftSetting] = [
     .enableUpcomingFeature("InferIsolatedConformances"),
     .enableUpcomingFeature("ExistentialAny"),
     .enableUpcomingFeature("MemberImportVisibility"),
-    .enableUpcomingFeature("InternalImportsByDefault")
+    .enableUpcomingFeature("InternalImportsByDefault"),
 ]
