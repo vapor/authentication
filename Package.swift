@@ -15,8 +15,26 @@ let package = Package(
             name: "Authentication",
             dependencies: [
                 .product(name: "CryptoExtras", package: "swift-crypto"),
-            ]
+            ],
+            swiftSettings: extraSettings
         ),
-        .testTarget(name: "AuthenticationTests", dependencies: ["Authentication"]),
+        .testTarget(
+            name: "AuthenticationTests",
+            dependencies: [
+                "Authentication"
+            ],
+            swiftSettings: extraSettings
+        ),
     ]
 )
+
+let extraSettings: [SwiftSetting] = [
+    .enableExperimentalFeature("SuppressedAssociatedTypes"),
+    .enableExperimentalFeature("LifetimeDependence"),
+    .enableUpcomingFeature("LifetimeDependence"),
+    .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
+    .enableUpcomingFeature("InferIsolatedConformances"),
+    .enableUpcomingFeature("ExistentialAny"),
+    .enableUpcomingFeature("MemberImportVisibility"),
+    .enableUpcomingFeature("InternalImportsByDefault")
+]
