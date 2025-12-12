@@ -4,9 +4,13 @@ import FoundationEssentials
 import Foundation
 #endif
 
-struct BcryptHasher: PasswordHasher {
+public struct BcryptHasher: PasswordHasher {
     let cost: Int
-    func hash<Password>(
+    public init(cost: Int = 12) {
+        self.cost = cost
+    }
+
+    public func hash<Password>(
         _ password: Password
     ) throws -> [UInt8]
         where Password: DataProtocol
@@ -16,7 +20,7 @@ struct BcryptHasher: PasswordHasher {
         return .init(digest.utf8)
     }
 
-    func verify<Password, Digest>(
+    public func verify<Password, Digest>(
         _ password: Password,
         created digest: Digest
     ) throws -> Bool
