@@ -223,7 +223,7 @@ public enum BcryptDigest: Sendable {
     }
 }
 
-public enum BcryptError: Swift.Error, CustomStringConvertible, LocalizedError {
+public enum BcryptError: Swift.Error, CustomStringConvertible, LocalizedError, Sendable {
     case invalidCost
     case invalidSalt
     case hashFailure
