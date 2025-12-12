@@ -19,6 +19,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-crypto.git", from: "4.0.0"),
     ],
     targets: [
+        .target(name: "CVaporAuthBcrypt"),
         .target(
             name: "Authentication",
             dependencies: [
