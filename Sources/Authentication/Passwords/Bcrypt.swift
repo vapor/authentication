@@ -80,21 +80,24 @@ public enum BcryptDigest: Sendable {
             normalizedSalt = salt
         }
 
-        let hashedBytes = UnsafeMutablePointer<Int8>.allocate(capacity: 128)
-        defer { hashedBytes.deallocate() }
-        let hashingResult = vapor_auth_bcrypt_hashpass(
-            plaintext,
-            normalizedSalt,
-            hashedBytes,
-            128
-        )
+        return try withUnsafeTemporaryAllocation(of: Int8.self, capacity: 128) { hashedBytes in
+            guard let hashedBytesBase = hashedBytes.baseAddress else {
+                throw BcryptError.internalError
+            }
+            let hashingResult = vapor_auth_bcrypt_hashpass(
+                plaintext,
+                normalizedSalt,
+                hashedBytesBase,
+                128
+            )
 
-        guard hashingResult == 0 else {
-            throw BcryptError.hashFailure
+            guard hashingResult == 0 else {
+                throw BcryptError.hashFailure
+            }
+            return originalAlgorithm.rawValue
+                + String(cString: hashedBytesBase)
+                    .dropFirst(originalAlgorithm.revisionCount)
         }
-        return originalAlgorithm.rawValue
-            + String(cString: hashedBytes)
-                .dropFirst(originalAlgorithm.revisionCount)
     }
 
     /// Verifies an existing bcrypt hash matches the supplied plaintext value. Verification works by parsing the salt and version from
@@ -145,14 +148,14 @@ public enum BcryptDigest: Sendable {
     ///     - algorithm: Revision to use (2b by default)
     ///     - seed: Salt (without revision data). Generated if not provided. Must be 16 chars long.
     /// - returns: Complete salt
-    private static func generateSalt(cost: Int, algorithm: Algorithm = ._2b, seed: [UInt8]? = nil) -> String {
+    private static func generateSalt(cost: Int, algorithm: Algorithm = ._2b, seed: [UInt8]? = nil) throws -> String {
         let randomData: [UInt8]
         if let seed = seed {
             randomData = seed
         } else {
             randomData = [UInt8].random(count: 16)
         }
-        let encodedSalt = base64Encode(randomData)
+        let encodedSalt = try base64Encode(randomData)
 
         return
             algorithm.rawValue +
@@ -182,14 +185,17 @@ public enum BcryptDigest: Sendable {
     /// - parameters:
     ///     - data: Data to be base64 encoded.
     /// - returns: Base 64 encoded plaintext
-    private static func base64Encode(_ data: [UInt8]) -> String {
-        let encodedBytes = UnsafeMutablePointer<Int8>.allocate(capacity: 25)
-        defer { encodedBytes.deallocate() }
-        let res = data.withUnsafeBytes { bytes in
-            vapor_auth_encode_base64(encodedBytes, bytes.baseAddress?.assumingMemoryBound(to: UInt8.self), bytes.count)
+    private static func base64Encode(_ data: [UInt8]) throws -> String {
+        try withUnsafeTemporaryAllocation(of: Int8.self, capacity: 25) { encodedBytes in
+            guard let encodedBytesBase = encodedBytes.baseAddress else {
+                throw BcryptError.internalError
+            }
+            let res = data.withUnsafeBytes { bytes in
+                vapor_auth_encode_base64(encodedBytesBase, bytes.baseAddress?.assumingMemoryBound(to: UInt8.self), bytes.count)
+            }
+            assert(res == 0, "base64 convert failed")
+            return String(cString: encodedBytesBase)
         }
-        assert(res == 0, "base64 convert failed")
-        return String(cString: encodedBytes)
     }
 
     /// Specific bcrypt algorithm.
@@ -228,6 +234,7 @@ public enum BcryptError: Swift.Error, CustomStringConvertible, LocalizedError, S
     case invalidSalt
     case hashFailure
     case invalidHash
+    case internalError
 
     public var errorDescription: String? {
         return self.description
@@ -247,6 +254,8 @@ public enum BcryptError: Swift.Error, CustomStringConvertible, LocalizedError, S
             return "Unable to compute hash"
         case .invalidHash:
             return "Invalid hash formatting"
+        case .internalError:
+            return "Internal bcrypt error"
         }
     }
 }
