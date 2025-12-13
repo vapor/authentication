@@ -19,5 +19,5 @@ jobs:
       with_musl: true
       with_android: true
       with_wasm: true
-      ios_scheme_name: auth
+      ios_scheme_name: authentication
     secrets: inherit
