@@ -60,8 +60,8 @@ typedef struct BlowfishContext {
  *    Blowfish_expand0state( state, key, keylen )
  */
 
-void VaporAuth_Blowfish_encipher(blf_ctx *, u_int32_t *);
-void VaporAuth_Blowfish_decipher(blf_ctx *, u_int32_t *);
+void VaporAuth_Blowfish_encipher(blf_ctx *, u_int32_t *, u_int32_t *xr);
+void VaporAuth_Blowfish_decipher(blf_ctx *, u_int32_t *, u_int32_t *xr);
 void VaporAuth_Blowfish_initstate(blf_ctx *);
 void VaporAuth_Blowfish_expand0state(blf_ctx *, const u_int8_t *, u_int16_t);
 void VaporAuth_Blowfish_expandstate(blf_ctx *, const u_int8_t *, u_int16_t, const u_int8_t *, u_int16_t);
