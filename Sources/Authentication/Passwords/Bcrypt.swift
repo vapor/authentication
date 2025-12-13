@@ -80,48 +80,15 @@ public enum BcryptDigest: Sendable {
             normalizedSalt = salt
         }
 
-//        var something = InlineArray<128, Int8>(repeating: 0)
-//        var data = ContiguousArray<Int8>(unsafeUninitializedCapacity: 128) { buffer, initializedCount in
-//            var span = buffer.mutableSpan
-//            let result = vapor_auth_bcrypt_hashpass(plaintext, normalizedSalt, &span)
-//            guard result == 0 else {
-//                throw BcryptError.hashFailure
-//            }
-//            print(buffer)
-//        }
-//        print(data)
-
-
-//        var someSpan = something.mutableSpan
-//        var hashedBytes = MutableSpan<Int8>()
-//        let result = vapor_auth_bcrypt_hashpass(plaintext, normalizedSalt, &something.mutableSpan)
-//        print(data)
-//        print(someSpan)
-//        guard result == 0 else {
-//            throw BcryptError.hashFailure
-//        }
-
-        return try withUnsafeTemporaryAllocation(of: Int8.self, capacity: 128) { hashedBytes in
-            guard let hashedBytesBase = hashedBytes.baseAddress else {
-                throw BcryptError.internalError
-            }
-//            let hashingResult = vapor_auth_bcrypt_hashpass(
-//                plaintext,
-//                normalizedSalt,
-//                hashedBytesBase,
-//                128
-//            )
-
-            var hashedBytesSpan = hashedBytes.mutableSpan
-            let result2 = vapor_auth_bcrypt_hashpass(plaintext, normalizedSalt, &hashedBytesSpan)
-
-            guard result2 == 0 else {
-                throw BcryptError.hashFailure
-            }
-            return originalAlgorithm.rawValue
-                + String(cString: hashedBytesBase)
-                    .dropFirst(originalAlgorithm.revisionCount)
+        var hashData = [Int8](repeating: 0, count: 128)
+        var hashDataSpan = hashData.mutableSpan
+        let result = vapor_auth_bcrypt_hashpass(plaintext, normalizedSalt, &hashDataSpan)
+        guard result == 0 else {
+            throw BcryptError.hashFailure
         }
+        let string = String(cString: hashData)
+
+        return originalAlgorithm.rawValue + string.dropFirst(originalAlgorithm.revisionCount)
     }
 
     /// Verifies an existing bcrypt hash matches the supplied plaintext value. Verification works by parsing the salt and version from
