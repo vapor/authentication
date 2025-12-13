@@ -192,7 +192,7 @@ static int
 decode_base64(u_int8_t *buffer, size_t len, const char *b64data)
 {
 	u_int8_t *bp = buffer;
-	const u_int8_t *p = b64data;
+	const u_int8_t *p = (u_int8_t *)b64data;
 	u_int8_t c1, c2, c3, c4;
 
 	while (bp < buffer + len) {
@@ -234,7 +234,7 @@ decode_base64(u_int8_t *buffer, size_t len, const char *b64data)
 int
 vapor_auth_encode_base64(char *b64buffer, const u_int8_t *__counted_by(len)data __noescape, size_t len)
 {
-    u_int8_t *bp = b64buffer;
+    u_int8_t *bp = (u_int8_t *)b64buffer;
 	const u_int8_t *p = data;
 	u_int8_t c1, c2;
 
