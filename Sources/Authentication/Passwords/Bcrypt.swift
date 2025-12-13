@@ -80,22 +80,22 @@ public enum BcryptDigest: Sendable {
             normalizedSalt = salt
         }
 
-        var something = InlineArray<128, Int8>(repeating: 0)
-        var data = ContiguousArray<Int8>(unsafeUninitializedCapacity: 128) { buffer, initializedCount in
+//        var something = InlineArray<128, Int8>(repeating: 0)
+//        var data = ContiguousArray<Int8>(unsafeUninitializedCapacity: 128) { buffer, initializedCount in
 //            var span = buffer.mutableSpan
 //            let result = vapor_auth_bcrypt_hashpass(plaintext, normalizedSalt, &span)
 //            guard result == 0 else {
 //                throw BcryptError.hashFailure
 //            }
 //            print(buffer)
-        }
+//        }
 //        print(data)
 
 
-        var someSpan = something.mutableSpan
+//        var someSpan = something.mutableSpan
 //        var hashedBytes = MutableSpan<Int8>()
-        let result = vapor_auth_bcrypt_hashpass(plaintext, normalizedSalt, &something.mutableSpan)
-        print(data)
+//        let result = vapor_auth_bcrypt_hashpass(plaintext, normalizedSalt, &something.mutableSpan)
+//        print(data)
 //        print(someSpan)
 //        guard result == 0 else {
 //            throw BcryptError.hashFailure
