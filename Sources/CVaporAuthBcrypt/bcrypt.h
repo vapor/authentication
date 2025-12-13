@@ -1,6 +1,8 @@
 #include <sys/types.h>
 #include <string.h>
 #include <stdio.h>
+#include <lifetimebound.h>
+#include <ptrcheck.h>
 
 #if defined(_WIN32)
 typedef unsigned char uint8_t;
@@ -35,5 +37,5 @@ typedef uint64_t u_int64_t;
 #define    BCRYPT_HASHSPACE    61
 
 
-int vapor_auth_bcrypt_hashpass(const char *key, const char *salt, char *encrypted, size_t encryptedlen);
-int vapor_auth_encode_base64(char *, const u_int8_t *, size_t);
+int vapor_auth_bcrypt_hashpass(const char *key, const char *salt, char *__counted_by(encryptedlen) encrypted __noescape, size_t encryptedlen);
+int vapor_auth_encode_base64(char *b64buffer, const u_int8_t *__counted_by(len)data __noescape, size_t len);

@@ -1,9 +1,9 @@
 #if canImport(FoundationEssentials)
-import FoundationEssentials
+public import FoundationEssentials
 #else
-import Foundation
+public import Foundation
 #endif
-import Crypto
+public import Crypto
 
 /// Supported OTP output sizes.
 public enum OTPDigits: Int, Sendable {
@@ -269,6 +269,6 @@ fileprivate extension FixedWidthInteger {
     /// The raw data representing the integer.
     var data: Data {
         var copy = self
-        return .init(bytes: &copy, count: MemoryLayout<Self>.size)
+        return unsafe .init(bytes: &copy, count: MemoryLayout<Self>.size)
     }
 }

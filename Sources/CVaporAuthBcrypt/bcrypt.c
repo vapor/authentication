@@ -39,6 +39,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "bcrypt.h"
+#include <lifetimebound.h>
+#include <ptrcheck.h>
 
 char   *bcrypt_gensalt(u_int8_t);
 
@@ -48,8 +50,11 @@ static int decode_base64(u_int8_t *, size_t, const char *);
  * the core bcrypt function
  */
 int
-vapor_auth_bcrypt_hashpass(const char *key, const char *salt, char *encrypted,
-                      size_t encryptedlen)
+vapor_auth_bcrypt_hashpass(
+                           const char *key,
+                           const char *salt,
+                           char *__counted_by(encryptedlen) encrypted __noescape,
+                           size_t encryptedlen)
 {
     blf_ctx state;
     u_int32_t rounds, i, k;
@@ -227,7 +232,7 @@ decode_base64(u_int8_t *buffer, size_t len, const char *b64data)
  * This works without = padding.
  */
 int
-vapor_auth_encode_base64(char *b64buffer, const u_int8_t *data, size_t len)
+vapor_auth_encode_base64(char *b64buffer, const u_int8_t *__counted_by(size_t)data __noescape, size_t len)
 {
     u_int8_t *bp = (u_int8_t *)b64buffer;
     const u_int8_t *p = data;

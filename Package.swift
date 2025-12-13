@@ -1,6 +1,20 @@
 // swift-tools-version:6.2
 import PackageDescription
 
+let extraSettings: [SwiftSetting] = [
+    .enableExperimentalFeature("SuppressedAssociatedTypes"),
+    .enableExperimentalFeature("LifetimeDependence"),
+    .enableUpcomingFeature("LifetimeDependence"),
+    .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
+    .enableUpcomingFeature("InferIsolatedConformances"),
+    .enableUpcomingFeature("ExistentialAny"),
+    .enableUpcomingFeature("MemberImportVisibility"),
+    .enableUpcomingFeature("InternalImportsByDefault"),
+//    .treatAllWarnings(as: .error),
+//    .strictMemorySafety(),
+    .enableExperimentalFeature("SafeInteropWrappers"),
+]
+
 let package = Package(
     name: "auth",
     platforms: [
@@ -18,7 +32,13 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-crypto.git", from: "4.0.0"),
     ],
     targets: [
-        .target(name: "CVaporAuthBcrypt"),
+        .target(
+            name: "CVaporAuthBcrypt",
+            cSettings: [
+//                .define("ENABLE_C_BOUNDS_SAFETY"),
+            ],
+            swiftSettings: extraSettings
+        ),
         .target(
             name: "Authentication",
             dependencies: [
@@ -34,16 +54,5 @@ let package = Package(
             ],
             swiftSettings: extraSettings
         ),
-    ]
+    ],
 )
-
-let extraSettings: [SwiftSetting] = [
-    .enableExperimentalFeature("SuppressedAssociatedTypes"),
-    .enableExperimentalFeature("LifetimeDependence"),
-    .enableUpcomingFeature("LifetimeDependence"),
-    .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
-    .enableUpcomingFeature("InferIsolatedConformances"),
-    .enableUpcomingFeature("ExistentialAny"),
-    .enableUpcomingFeature("MemberImportVisibility"),
-    .enableUpcomingFeature("InternalImportsByDefault"),
-]
