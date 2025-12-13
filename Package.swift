@@ -16,7 +16,7 @@ let extraSettings: [SwiftSetting] = [
 ]
 
 let package = Package(
-    name: "auth",
+    name: "authentication",
     platforms: [
         .macOS(.v26),
         .macCatalyst(.v26),
