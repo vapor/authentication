@@ -1,9 +1,10 @@
+internal import CVaporAuthBcrypt
+
 #if canImport(FoundationEssentials)
 public import Foundation
 #else
 public import Foundation
 #endif
-internal import CVaporAuthBcrypt
 
 // MARK: bcrypt
 
@@ -33,7 +34,6 @@ public enum BcryptDigest: Sendable {
         }
         return try Self.hash(plaintext, salt: Self.generateSalt(cost: cost))
     }
-
 
     /// Creates a bcrypt hash using a provided salt.
     ///
@@ -150,10 +150,8 @@ public enum BcryptDigest: Sendable {
         }
         let encodedSalt = try base64Encode(randomData)
         return
-            algorithm.rawValue +
-            (cost < 10 ? "0\(cost)" : "\(cost)" ) + // 0 padded
-            "$" +
-            encodedSalt
+            algorithm.rawValue + (cost < 10 ? "0\(cost)" : "\(cost)")  // 0 padded
+            + "$" + encodedSalt
     }
 
     /// Checks whether the provided salt is valid or not

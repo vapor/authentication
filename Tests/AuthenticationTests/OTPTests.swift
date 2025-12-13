@@ -1,17 +1,20 @@
-import Testing
 import Crypto
 import Foundation
+import Testing
+
 @testable import Authentication
 
 @Suite("OTP Tests")
 struct OTPTests {
     /// Basic TOTP tests using some RFC 6238 test vectors.
     /// https://tools.ietf.org/html/rfc6238.html
-    @Test("TOTP basic generation with RFC 6238 test vectors", arguments: [
-        (key: "12345678901234567890", digest: OTPDigest.sha1, otp: "94287082"),
-        (key: "12345678901234567890123456789012", digest: OTPDigest.sha256, otp: "46119246"),
-        (key: "1234567890123456789012345678901234567890123456789012345678901234", digest: OTPDigest.sha512, otp: "90693936"),
-    ])
+    @Test(
+        "TOTP basic generation with RFC 6238 test vectors",
+        arguments: [
+            (key: "12345678901234567890", digest: OTPDigest.sha1, otp: "94287082"),
+            (key: "12345678901234567890123456789012", digest: OTPDigest.sha256, otp: "46119246"),
+            (key: "1234567890123456789012345678901234567890123456789012345678901234", digest: OTPDigest.sha512, otp: "90693936"),
+        ])
     func totpBasic(key: String, digest: OTPDigest, otp: String) throws {
         let time = Date(timeIntervalSince1970: 59)
         let keyData = try #require(key.data(using: .ascii))
@@ -44,18 +47,20 @@ struct OTPTests {
 
     /// Basic HOTP tests using RFC 4226 test vectors.
     /// https://tools.ietf.org/html/rfc4226#page-32
-    @Test("HOTP basic generation with RFC 4226 test vectors", arguments: [
-        (counter: 0, otp: "755224"),
-        (counter: 1, otp: "287082"),
-        (counter: 2, otp: "359152"),
-        (counter: 3, otp: "969429"),
-        (counter: 4, otp: "338314"),
-        (counter: 5, otp: "254676"),
-        (counter: 6, otp: "287922"),
-        (counter: 7, otp: "162583"),
-        (counter: 8, otp: "399871"),
-        (counter: 9, otp: "520489"),
-    ])
+    @Test(
+        "HOTP basic generation with RFC 4226 test vectors",
+        arguments: [
+            (counter: 0, otp: "755224"),
+            (counter: 1, otp: "287082"),
+            (counter: 2, otp: "359152"),
+            (counter: 3, otp: "969429"),
+            (counter: 4, otp: "338314"),
+            (counter: 5, otp: "254676"),
+            (counter: 6, otp: "287922"),
+            (counter: 7, otp: "162583"),
+            (counter: 8, otp: "399871"),
+            (counter: 9, otp: "520489"),
+        ])
     func hotpBasic(counter: UInt64, otp: String) throws {
         let keyData = try #require("12345678901234567890".data(using: .ascii))
         let key = SymmetricKey(data: keyData)

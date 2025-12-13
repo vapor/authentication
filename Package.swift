@@ -26,16 +26,16 @@ let package = Package(
         .visionOS(.v26),
     ],
     products: [
-        .library(name: "Authentication", targets: ["Authentication"]),
+        .library(name: "Authentication", targets: ["Authentication"])
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-crypto.git", from: "4.0.0"),
+        .package(url: "https://github.com/apple/swift-crypto.git", from: "4.0.0")
     ],
     targets: [
         .target(
             name: "CVaporAuthBcrypt",
             cSettings: [
-                .define("ENABLE_C_BOUNDS_SAFETY"),
+                .define("ENABLE_C_BOUNDS_SAFETY")
             ],
             swiftSettings: extraSettings
         ),
