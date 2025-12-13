@@ -38,4 +38,4 @@ typedef uint64_t u_int64_t;
 
 
 int vapor_auth_bcrypt_hashpass(const char *key, const char *salt, char *__counted_by(encryptedlen) encrypted __noescape, size_t encryptedlen);
-int vapor_auth_encode_base64(char *__counted_by(len)b64buffer __noescape, const u_int8_t *__counted_by(len)data __noescape, size_t len);
+int vapor_auth_encode_base64(char *b64buffer, const u_int8_t *__counted_by(len)data __noescape, size_t len);

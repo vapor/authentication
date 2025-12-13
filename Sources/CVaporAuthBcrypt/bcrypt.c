@@ -232,7 +232,7 @@ decode_base64(u_int8_t *buffer, size_t len, const char *b64data)
  * This works without = padding.
  */
 int
-vapor_auth_encode_base64(char *__counted_by(len)b64buffer __noescape, const u_int8_t *__counted_by(len)data __noescape, size_t len)
+vapor_auth_encode_base64(char *b64buffer, const u_int8_t *__counted_by(len)data __noescape, size_t len)
 {
     u_int8_t *bp = (u_int8_t *)b64buffer;
     const u_int8_t *p = data;

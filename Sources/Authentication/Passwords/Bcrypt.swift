@@ -149,7 +149,6 @@ public enum BcryptDigest: Sendable {
             randomData = [UInt8].random(count: 16)
         }
         let encodedSalt = try base64Encode(randomData)
-
         return
             algorithm.rawValue +
             (cost < 10 ? "0\(cost)" : "\(cost)" ) + // 0 padded
@@ -179,25 +178,13 @@ public enum BcryptDigest: Sendable {
     ///     - data: Data to be base64 encoded.
     /// - returns: Base 64 encoded plaintext
     private static func base64Encode(_ data: [UInt8]) throws -> String {
-        var encodedStringBytes = [Int8](repeating: 0, count: data.count)
-        var encodedStringSpan = encodedStringBytes.mutableSpan
-        let result = vapor_auth_encode_base64(&encodedStringSpan, data.span)
+        var encodedStringBytes = [Int8](repeating: 0, count: 25)
+        let result = unsafe vapor_auth_encode_base64(&encodedStringBytes, data.span)
         assert(result == 0, "base64 convert failed")
         guard let encodedString = String(utf8String: encodedStringBytes) else {
             throw BcryptError.internalError
         }
         return encodedString
-//        try withUnsafeTemporaryAllocation(of: Int8.self, capacity: 25) { encodedBytes in
-//            guard let encodedBytesBase = encodedBytes.baseAddress else {
-//                throw BcryptError.internalError
-//            }
-//            // data.mutableSpan
-//            let res = data.withUnsafeBytes { bytes in
-//                vapor_auth_encode_base64(encodedBytesBase, bytes.baseAddress?.assumingMemoryBound(to: UInt8.self), bytes.count)
-//            }
-//            assert(res == 0, "base64 convert failed")
-//            return String(cString: encodedBytesBase)
-//        }
     }
 
     /// Specific bcrypt algorithm.
