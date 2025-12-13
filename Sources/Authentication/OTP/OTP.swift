@@ -1,5 +1,5 @@
 #if canImport(FoundationEssentials)
-public import FoundationEssentials
+public import Foundation
 #else
 public import Foundation
 #endif
