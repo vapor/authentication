@@ -86,7 +86,9 @@ public enum BcryptDigest: Sendable {
         guard result == 0 else {
             throw BcryptError.hashFailure
         }
-        let string = String(cString: hashData)
+        guard let string = String(utf8String: hashData) else {
+            throw BcryptError.internalError
+        }
 
         return originalAlgorithm.rawValue + string.dropFirst(originalAlgorithm.revisionCount)
     }
