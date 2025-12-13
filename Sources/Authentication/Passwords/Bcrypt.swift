@@ -82,7 +82,7 @@ public enum BcryptDigest: Sendable {
 
         var hashData = [Int8](repeating: 0, count: 128)
         var hashDataSpan = hashData.mutableSpan
-        let result = vapor_auth_bcrypt_hashpass(plaintext, normalizedSalt, &hashDataSpan)
+        let result = unsafe vapor_auth_bcrypt_hashpass(plaintext, normalizedSalt, &hashDataSpan)
         guard result == 0 else {
             throw BcryptError.hashFailure
         }
@@ -179,17 +179,25 @@ public enum BcryptDigest: Sendable {
     ///     - data: Data to be base64 encoded.
     /// - returns: Base 64 encoded plaintext
     private static func base64Encode(_ data: [UInt8]) throws -> String {
-        try withUnsafeTemporaryAllocation(of: Int8.self, capacity: 25) { encodedBytes in
-            guard let encodedBytesBase = encodedBytes.baseAddress else {
-                throw BcryptError.internalError
-            }
-            // data.mutableSpan
-            let res = data.withUnsafeBytes { bytes in
-                vapor_auth_encode_base64(encodedBytesBase, bytes.baseAddress?.assumingMemoryBound(to: UInt8.self), bytes.count)
-            }
-            assert(res == 0, "base64 convert failed")
-            return String(cString: encodedBytesBase)
+        var encodedStringBytes = [Int8](repeating: 0, count: data.count)
+        var encodedStringSpan = encodedStringBytes.mutableSpan
+        let result = vapor_auth_encode_base64(&encodedStringSpan, data.span)
+        assert(result == 0, "base64 convert failed")
+        guard let encodedString = String(utf8String: encodedStringBytes) else {
+            throw BcryptError.internalError
         }
+        return encodedString
+//        try withUnsafeTemporaryAllocation(of: Int8.self, capacity: 25) { encodedBytes in
+//            guard let encodedBytesBase = encodedBytes.baseAddress else {
+//                throw BcryptError.internalError
+//            }
+//            // data.mutableSpan
+//            let res = data.withUnsafeBytes { bytes in
+//                vapor_auth_encode_base64(encodedBytesBase, bytes.baseAddress?.assumingMemoryBound(to: UInt8.self), bytes.count)
+//            }
+//            assert(res == 0, "base64 convert failed")
+//            return String(cString: encodedBytesBase)
+//        }
     }
 
     /// Specific bcrypt algorithm.

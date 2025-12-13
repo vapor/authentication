@@ -10,8 +10,8 @@ let extraSettings: [SwiftSetting] = [
     .enableUpcomingFeature("ExistentialAny"),
     .enableUpcomingFeature("MemberImportVisibility"),
     .enableUpcomingFeature("InternalImportsByDefault"),
-//    .treatAllWarnings(as: .error),
-//    .strictMemorySafety(),
+    .treatAllWarnings(as: .error),
+    .strictMemorySafety(),
     .enableExperimentalFeature("SafeInteropWrappers"),
 ]
 
@@ -35,7 +35,7 @@ let package = Package(
         .target(
             name: "CVaporAuthBcrypt",
             cSettings: [
-//                .define("ENABLE_C_BOUNDS_SAFETY"),
+                .define("ENABLE_C_BOUNDS_SAFETY"),
             ],
             swiftSettings: extraSettings
         ),
