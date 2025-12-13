@@ -178,8 +178,7 @@ public enum BcryptDigest: Sendable {
     private static func base64Encode(_ data: [UInt8]) throws -> String {
         var encodedStringBytes = [Int8](repeating: 0, count: 25)
         let result = unsafe vapor_auth_encode_base64(&encodedStringBytes, data.span)
-        assert(result == 0, "base64 convert failed")
-        guard let encodedString = String(utf8String: encodedStringBytes) else {
+        guard result == 0, let encodedString = String(utf8String: encodedStringBytes) else {
             throw BcryptError.internalError
         }
         return encodedString

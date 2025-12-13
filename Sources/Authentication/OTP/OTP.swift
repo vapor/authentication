@@ -54,12 +54,7 @@ extension OTP {
     ) -> String {
         let hmac = Array(
             HMAC<H>.authenticationCode(
-                for: /*counter.bigEndian.data */ Data([
-                    UInt8(truncatingIfNeeded: counter >> 56), UInt8(truncatingIfNeeded: counter >> 48),
-                    UInt8(truncatingIfNeeded: counter >> 40), UInt8(truncatingIfNeeded: counter >> 32),
-                    UInt8(truncatingIfNeeded: counter >> 24), UInt8(truncatingIfNeeded: counter >> 16),
-                    UInt8(truncatingIfNeeded: counter >> 8), UInt8(truncatingIfNeeded: counter >> 0),
-                ]),
+                for: counter.bigEndian.data,
                 using: self.key
             ))
         // Get the last 4 bits of the HMAC for use as offset
