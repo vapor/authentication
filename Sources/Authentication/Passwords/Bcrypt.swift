@@ -249,7 +249,9 @@ public enum BcryptError: Swift.Error, CustomStringConvertible, LocalizedError, S
 extension Array where Element == UInt8 {
     static func random(count: Int) -> [Element] {
         var array: [Element] = .init(repeating: 0, count: count)
-        (0..<count).forEach { array[$0] = Element.random(in: .min ... .max) }
+        for index in 0..<count {
+            array[index] = Element.random(in: .min ... .max)
+        }
         return array
     }
 }
