@@ -13,7 +13,6 @@ let extraSettings: [SwiftSetting] = [
 //    .treatAllWarnings(as: .error),
     .strictMemorySafety(),
     .enableExperimentalFeature("SafeInteropWrappers"),
-    .unsafeFlags(["-Xcc", "-fexperimental-bounds-safety-attributes"]),
 ]
 
 let package = Package(
