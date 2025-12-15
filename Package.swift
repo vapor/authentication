@@ -13,6 +13,7 @@ let extraSettings: [SwiftSetting] = [
     .treatAllWarnings(as: .error),
     .strictMemorySafety(),
     .enableExperimentalFeature("SafeInteropWrappers"),
+    .unsafeFlags(["-Xcc", "-fexperimental-bounds-safety-attributes"]),
 ]
 
 let package = Package(
@@ -37,7 +38,7 @@ let package = Package(
             cSettings: [
                 .define("ENABLE_C_BOUNDS_SAFETY")
             ],
-            swiftSettings: extraSettings
+            swiftSettings: extraSettings,
         ),
         .target(
             name: "Authentication",
