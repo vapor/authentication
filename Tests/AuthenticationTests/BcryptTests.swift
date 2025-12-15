@@ -5,35 +5,35 @@ import Testing
 struct BcryptTests {
     @Test("Hash includes correct version prefix")
     func version() throws {
-        let digest = try BcryptDigest.hash("foo", cost: 6)
+        let digest = try VaporBcrypt.hash("foo", cost: 6)
         #expect(digest.hasPrefix("$2b$06$"))
     }
 
     @Test("Verification fails for wrong password")
     func verifyFails() throws {
-        let digest = try BcryptDigest.hash("foo", cost: 6)
-        let result = try BcryptDigest.verify("bar", created: digest)
+        let digest = try VaporBcrypt.hash("foo", cost: 6)
+        let result = try VaporBcrypt.verify("bar", created: digest)
         #expect(result == false)
     }
 
     @Test("Invalid minimum cost throws error")
     func invalidMinCost() {
         #expect(throws: BcryptError.self) {
-            try BcryptDigest.hash("foo", cost: 1)
+            try VaporBcrypt.hash("foo", cost: 1)
         }
     }
 
     @Test("Invalid maximum cost throws error")
     func invalidMaxCost() {
         #expect(throws: BcryptError.self) {
-            try BcryptDigest.hash("foo", cost: 32)
+            try VaporBcrypt.hash("foo", cost: 32)
         }
     }
 
     @Test("Invalid salt throws error")
     func invalidSalt() {
         #expect(throws: BcryptError.self) {
-            try BcryptDigest.verify("", created: "foo")
+            try VaporBcrypt.verify("", created: "foo")
         }
     }
 
@@ -56,13 +56,13 @@ struct BcryptTests {
             (hash: "$2a$06$fPIsBO8qRqkjj273rfaOI.HtSV9jLDpTbZn782DC6/t7qT67P6FfO", message: "~!@#$%^&*()      ~!@#$%^&*()PNBFRD"),
         ])
     func verify(hash: String, message: String) throws {
-        let result = try BcryptDigest.verify(message, created: hash)
+        let result = try VaporBcrypt.verify(message, created: hash)
         #expect(result, "\(message): did not match \(hash)")
     }
 
     @Test("Verify known vapor hash")
     func onlineVapor() throws {
-        let result = try BcryptDigest.verify("vapor", created: "$2a$10$e.qg8zwKLHu3ur5rPF97ouzCJiJmZ93tiwNekDvTQfuhyu97QaUk.")
+        let result = try VaporBcrypt.verify("vapor", created: "$2a$10$e.qg8zwKLHu3ur5rPF97ouzCJiJmZ93tiwNekDvTQfuhyu97QaUk.")
         #expect(result)
     }
 }

@@ -5,17 +5,17 @@ import Testing
 struct PasswordTests {
     @Test("BcryptHasher hashes and verifies passwords")
     func bcryptHasher() throws {
-        let hash = try BcryptDigest.hash("vapor")
+        let hash = try VaporBcrypt.hash("vapor")
         #expect(hash != "vapor")
         let hasher = BcryptHasher(cost: 12)
         #expect(try hasher.verify("vapor", created: hash))
-        #expect(try BcryptDigest.verify("vapor", created: hash))
+        #expect(try VaporBcrypt.verify("vapor", created: hash))
 
         let hash2 = try hasher.hash("vapor")
         #expect(hash2 != hash)
         #expect(hash2 != "vapor")
         #expect(try hasher.verify("vapor", created: hash2))
-        #expect(try BcryptDigest.verify("vapor", created: hash2))
+        #expect(try VaporBcrypt.verify("vapor", created: hash2))
     }
 
     @Test("PlaintextHasher hashes and verifies passwords")

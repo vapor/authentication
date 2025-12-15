@@ -20,7 +20,7 @@ public import Foundation
 ///     try BcryptDigest.verify("vapor", created: hash) // true
 ///
 /// https://en.wikipedia.org/wiki/bcrypt
-public enum BcryptDigest: Sendable {
+public enum VaporBcrypt: Sendable {
     /// Creates a new bcrypt hash with a randomly generated salt.
     /// The result can be stored in a database.
     /// parameters:

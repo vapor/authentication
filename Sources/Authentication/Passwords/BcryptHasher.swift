@@ -15,7 +15,7 @@ public struct BcryptHasher: PasswordHasher {
     ) throws -> [UInt8]
     where Password: DataProtocol {
         let string = String(decoding: password, as: UTF8.self)
-        let digest = try BcryptDigest.hash(string, cost: self.cost)
+        let digest = try VaporBcrypt.hash(string, cost: self.cost)
         return .init(digest.utf8)
     }
 
@@ -24,7 +24,7 @@ public struct BcryptHasher: PasswordHasher {
         created digest: Digest
     ) throws -> Bool
     where Password: DataProtocol, Digest: DataProtocol {
-        try BcryptDigest.verify(
+        try VaporBcrypt.verify(
             String(decoding: password.copyBytes(), as: UTF8.self),
             created: String(decoding: digest.copyBytes(), as: UTF8.self)
         )
