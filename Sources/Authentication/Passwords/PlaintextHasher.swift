@@ -7,7 +7,7 @@ public import Foundation
 public struct PlaintextHasher: PasswordHasher {
     public init() {}
 
-    public func hash<Password>(_ password: Password) throws -> [UInt8]
+    public func hash<Password>(_ password: Password) throws(Never) -> [UInt8]
     where Password: DataProtocol {
         password.copyBytes()
     }
@@ -15,7 +15,7 @@ public struct PlaintextHasher: PasswordHasher {
     public func verify<Password, Digest>(
         _ password: Password,
         created digest: Digest
-    ) throws -> Bool
+    ) throws(Never) -> Bool
     where Password: DataProtocol, Digest: DataProtocol {
         password.copyBytes() == digest.copyBytes()
     }
