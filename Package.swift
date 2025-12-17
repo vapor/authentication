@@ -10,7 +10,7 @@ let extraSettings: [SwiftSetting] = [
     .enableUpcomingFeature("ExistentialAny"),
     .enableUpcomingFeature("MemberImportVisibility"),
     .enableUpcomingFeature("InternalImportsByDefault"),
-//    .treatAllWarnings(as: .error),
+    //    .treatAllWarnings(as: .error),
     .strictMemorySafety(),
     .enableExperimentalFeature("SafeInteropWrappers"),
     .unsafeFlags(["-Xcc", "-fexperimental-bounds-safety-attributes"]),
@@ -45,6 +45,7 @@ let package = Package(
             dependencies: [
                 .target(name: "CVaporAuthBcrypt"),
                 .product(name: "Crypto", package: "swift-crypto"),
+                .product(name: "CryptoExtras", package: "swift-crypto"),
             ],
             swiftSettings: extraSettings
         ),
