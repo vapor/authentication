@@ -73,13 +73,13 @@ public struct PBKDF2Hasher: PasswordHasher {
 
         let keyData = unsafe key.withUnsafeBytes { unsafe Data($0) }
 
-        // PHC format: $pbkdf2-<alg>$<iterations>$<b64salt>$<b64hash>
+        // $pbkdf2-<alg>$<iterations>$<b64salt>$<b64hash>
         let algorithmId = Self.algorithmIdentifier(for: pseudoRandomFunction)
         let b64Salt = Data(salt).base64EncodedString()
         let b64Hash = keyData.base64EncodedString()
 
-        let phcString = "$pbkdf2-\(algorithmId)$\(iterations)$\(b64Salt)$\(b64Hash)"
-        return Array(phcString.utf8)
+        let passwordString = "$pbkdf2-\(algorithmId)$\(iterations)$\(b64Salt)$\(b64Hash)"
+        return Array(passwordString.utf8)
     }
 
     /// Verifies a password against a hash.
