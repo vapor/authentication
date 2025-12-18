@@ -10,7 +10,7 @@ let extraSettings: [SwiftSetting] = [
     .enableUpcomingFeature("ExistentialAny"),
     .enableUpcomingFeature("MemberImportVisibility"),
     .enableUpcomingFeature("InternalImportsByDefault"),
-//    .treatAllWarnings(as: .error),
+    //    .treatAllWarnings(as: .error),
     .strictMemorySafety(),
     .enableExperimentalFeature("SafeInteropWrappers"),
     .unsafeFlags(["-Xcc", "-fexperimental-bounds-safety-attributes"]),
