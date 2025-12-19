@@ -1,3 +1,4 @@
+#if bcrypt
 @nonexhaustive
 public enum BcryptError: Swift.Error, CustomStringConvertible, Sendable {
     case invalidCost
@@ -29,3 +30,4 @@ public enum BcryptError: Swift.Error, CustomStringConvertible, Sendable {
         }
     }
 }
+#endif
