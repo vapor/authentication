@@ -1,4 +1,4 @@
-// swift-tools-version:6.2
+// swift-tools-version:6.2.3
 import PackageDescription
 
 let extraSettings: [SwiftSetting] = [
@@ -10,7 +10,7 @@ let extraSettings: [SwiftSetting] = [
     .enableUpcomingFeature("ExistentialAny"),
     .enableUpcomingFeature("MemberImportVisibility"),
     .enableUpcomingFeature("InternalImportsByDefault"),
-//    .treatAllWarnings(as: .error),
+    //    .treatAllWarnings(as: .error),
     .strictMemorySafety(),
     .enableExperimentalFeature("SafeInteropWrappers"),
     .unsafeFlags(["-Xcc", "-fexperimental-bounds-safety-attributes"]),

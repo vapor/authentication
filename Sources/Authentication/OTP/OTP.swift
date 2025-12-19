@@ -1,9 +1,23 @@
 public import Crypto
 
 #if canImport(FoundationEssentials)
-public import Foundation
+public import FoundationEssentials
 #else
 public import Foundation
+#endif
+
+#if canImport(Darwin)
+internal import os
+#elseif canImport(Bionic)
+internal import Bionic
+#elseif canImport(Glibc)
+internal import Glibc
+#elseif canImport(Musl)
+internal import Musl
+#elseif canImport(CRT)
+internal import CRT
+#elseif os(WASI)
+internal import WASILibc
 #endif
 
 /// Supported OTP output sizes.
