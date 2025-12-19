@@ -1,3 +1,4 @@
+#if bcrypt
 #if canImport(FoundationEssentials)
 public import FoundationEssentials
 #else
@@ -30,3 +31,4 @@ public struct BcryptHasher: PasswordHasher {
         )
     }
 }
+#endif

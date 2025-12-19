@@ -1,3 +1,4 @@
+#if bcrypt
 internal import CVaporAuthBcrypt
 
 #if canImport(FoundationEssentials)
@@ -224,3 +225,4 @@ extension Array where Element == UInt8 {
         return array
     }
 }
+#endif
