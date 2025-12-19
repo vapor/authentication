@@ -1,11 +1,5 @@
-#if canImport(FoundationEssentials)
-public import Foundation
-#else
-public import Foundation
-#endif
-
 @nonexhaustive
-public enum BcryptError: Swift.Error, CustomStringConvertible, LocalizedError, Sendable {
+public enum BcryptError: Swift.Error, CustomStringConvertible, Sendable {
     case invalidCost
     case invalidSalt
     case hashFailure

@@ -1,9 +1,9 @@
 internal import CVaporAuthBcrypt
 
 #if canImport(FoundationEssentials)
-public import Foundation
+internal import Foundation
 #else
-public import Foundation
+internal import Foundation
 #endif
 
 // MARK: bcrypt
