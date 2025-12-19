@@ -29,6 +29,14 @@ let package = Package(
     products: [
         .library(name: "Authentication", targets: ["Authentication"])
     ],
+    traits: [
+        .trait(name: "bcrypt"),
+        .trait(name: "OTP"),
+        .default(enabledTraits: [
+            "bcrypt",
+            "OTP",
+        ]),
+    ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-crypto.git", from: "4.0.0")
     ],
@@ -43,8 +51,8 @@ let package = Package(
         .target(
             name: "Authentication",
             dependencies: [
-                .target(name: "CVaporAuthBcrypt"),
-                .product(name: "Crypto", package: "swift-crypto"),
+                .target(name: "CVaporAuthBcrypt", condition: .when(traits: ["bcrypt"])),
+                .product(name: "Crypto", package: "swift-crypto", condition: .when(traits: ["bcrypt", "OTP"])),
             ],
             swiftSettings: extraSettings
         ),
