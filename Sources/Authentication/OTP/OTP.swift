@@ -20,7 +20,6 @@ internal import CRT
 internal import WASILibc
 #endif
 
-
 /// Supported OTP output sizes.
 public enum OTPDigits: Int, Sendable {
     /// Six digits OTP.
