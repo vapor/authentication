@@ -1,3 +1,4 @@
+#if OTP
 import Crypto
 import Foundation
 import Testing
@@ -75,3 +76,4 @@ struct OTPTests {
         #expect(codes.count == 3)
     }
 }
+#endif
