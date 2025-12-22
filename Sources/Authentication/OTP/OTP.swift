@@ -60,7 +60,9 @@ internal protocol OTP {
 
 extension OTP {
     /// Generate the OTP based on a counter.
-    /// - Parameter counter: The counter to generate the OTP for.
+    /// - Parameters:
+    ///   - h: The hash function to use.
+    ///   - counter: The counter to generate the OTP for.
     /// - Returns: The generated OTP as `String`.
     func generate<H: HashFunction>(
         _ h: H,
@@ -84,6 +86,7 @@ extension OTP {
     /// Generates a range of OTP's.
     /// - Note: This function will automatically wrap the counter by using integer overflow.
     /// - Parameters:
+    ///   - h: The hash function to use
     ///   - counter: The 'main' counter.
     ///   - range: The number of codes to generate in both the forward and backward direction. This number must be bigger than 0.
     ///   For example, if `range` is `2`, a total of `5` codes will be returned: The main code, the two codes prior to the main code and the two codes after the main code.
@@ -145,7 +148,7 @@ public struct HOTP: OTP, Sendable {
     /// - Parameters:
     ///   - key: The key.
     ///   - digest: The digest to use.
-    ///   - digits: The number of digits to generate.
+    ///   - digits: The number of digits to generate. Defaults to six.
     public init(
         key: SymmetricKey,
         digest: OTPDigest,
@@ -181,9 +184,9 @@ public struct HOTP: OTP, Sendable {
 
     /// Compute the HOTP for the key and the counter.
     /// - Parameters:
-    ///   - key: The key.
+    ///   - key: The key to use.
     ///   - digest: The digest to use.
-    ///   - digits: The number of digits to produce.
+    ///   - digits: The number of digits to produce. Defaults to six.
     ///   - counter: The counter to generate the HOTP for.
     /// - Returns: The generated HOTP as `String`.
     public static func generate(
@@ -244,7 +247,7 @@ public struct TOTP: OTP, Sendable {
     /// - Note: This function will automatically create the previous and next TOTP's for a range based on the interval. For example, if the interval is `30` and the range is `2`, the result will be calculated for `[-1min, -30sec, 0, 30sec, 1min]`.
     /// - Note: This function will automatically wrap the counter by using integer overflow. This might provide some odd behaviour when near the start time or near the max time.
     /// - Parameters:
-    ///   - counter: The 'main' counter.
+    ///   - time: The time to generate the TOTP for.
     ///   - range: The number of codes to generate in both the forward and backward direction. This number must be bigger than 0.
     ///   For example, if `range` is `2`, a total of `5` codes will be returned: The main code, the two codes prior to the main code and the two codes after the main code.
     /// - Returns: All the generated OTP's in an array.
