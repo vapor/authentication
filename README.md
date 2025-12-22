@@ -138,11 +138,3 @@ let codes = totp.generate(time: Date(), range: 1)
 // Check if user's code matches any valid code
 let isValid = codes.contains(userCode)
 ```
-
-## Documentation
-
-Full API documentation is available via DocC. Build documentation locally with:
-
-```bash
-swift package generate-documentation
-```

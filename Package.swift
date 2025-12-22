@@ -30,8 +30,7 @@ let package = Package(
         .library(name: "Authentication", targets: ["Authentication"])
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-crypto.git", from: "4.0.0"),
-        .package(url: "https://github.com/swiftlang/swift-docc-plugin", from: "1.4.5"),
+        .package(url: "https://github.com/apple/swift-crypto.git", from: "4.0.0")
     ],
     targets: [
         .target(
