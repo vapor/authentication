@@ -1,3 +1,4 @@
+#if OTP
 public import Crypto
 
 #if canImport(FoundationEssentials)
@@ -285,3 +286,4 @@ extension FixedWidthInteger {
         return unsafe .init(bytes: &copy, count: MemoryLayout<Self>.size)
     }
 }
+#endif

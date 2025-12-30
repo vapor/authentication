@@ -18,7 +18,7 @@ Add the Authentication package to your `Package.swift` dependencies:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/vapor/authentication.git", from: "4.0.0")
+    .package(url: "https://github.com/vapor/authentication.git", from: "3.0.0")
 ]
 ```
 
