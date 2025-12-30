@@ -80,7 +80,7 @@ public enum VaporBcrypt: Sendable {
             normalizedSalt = salt
         }
 
-        var hashData = [Int8](repeating: 0, count: 128)
+        var hashData = [CChar](repeating: 0, count: 128)
         var hashDataSpan = hashData.mutableSpan
         let result = unsafe vapor_auth_bcrypt_hashpass(plaintext, normalizedSalt, &hashDataSpan)
         guard result == 0 else {
@@ -176,7 +176,7 @@ public enum VaporBcrypt: Sendable {
     ///     - data: Data to be base64 encoded.
     /// - returns: Base 64 encoded plaintext
     private static func base64Encode(_ data: [UInt8]) throws(BcryptError) -> String {
-        var encodedStringBytes = [Int8](repeating: 0, count: 25)
+        var encodedStringBytes = [CChar](repeating: 0, count: 25)
         let result = unsafe vapor_auth_encode_base64(&encodedStringBytes, data.span)
         guard result == 0, let encodedString = String(utf8String: encodedStringBytes) else {
             throw BcryptError.internalError
