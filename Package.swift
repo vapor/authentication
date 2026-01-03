@@ -45,6 +45,7 @@ let package = Package(
             dependencies: [
                 .target(name: "CVaporAuthBcrypt"),
                 .product(name: "Crypto", package: "swift-crypto"),
+                .product(name: "CryptoExtras", package: "swift-crypto"),
             ],
             swiftSettings: extraSettings
         ),
