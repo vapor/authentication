@@ -2,7 +2,7 @@
 internal import CVaporAuthBcrypt
 
 #if canImport(FoundationEssentials)
-internal import Foundation
+internal import FoundationEssentials
 #else
 internal import Foundation
 #endif
@@ -87,7 +87,9 @@ public enum VaporBcrypt: Sendable {
         guard result == 0 else {
             throw BcryptError.hashFailure
         }
-        guard let string = String(utf8String: hashData) else {
+        // Remove null terminated characters
+        let cleanedHashData = Array(hashData.prefix { $0 != 0 })
+        guard let string = String(validating: cleanedHashData, as: UTF8.self) else {
             throw BcryptError.internalError
         }
 
@@ -179,7 +181,9 @@ public enum VaporBcrypt: Sendable {
     private static func base64Encode(_ data: [UInt8]) throws(BcryptError) -> String {
         var encodedStringBytes = [CChar](repeating: 0, count: 25)
         let result = unsafe vapor_auth_encode_base64(&encodedStringBytes, data.span)
-        guard result == 0, let encodedString = String(utf8String: encodedStringBytes) else {
+        // Remove null terminated characters
+        let cleanedString = Array(encodedStringBytes.prefix { $0 != 0 })
+        guard result == 0, let encodedString = String(validating: cleanedString, as: UTF8.self) else {
             throw BcryptError.internalError
         }
         return encodedString
