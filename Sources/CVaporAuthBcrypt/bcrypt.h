@@ -42,7 +42,8 @@ int vapor_auth_bcrypt_hashpass(const char *_Nonnull __counted_by(keysize) key __
                                size_t keysize,
                                size_t saltsize,
                                size_t encryptedlen);
-int vapor_auth_encode_base64(char *_Nonnull b64buffer __noescape,
+int vapor_auth_encode_base64(char *_Nonnull __counted_by(bufferlen) b64buffer __noescape,
                              const u_int8_t *_Nonnull __counted_by(len)
                                  data __noescape,
+                             size_t bufferlen,
                              size_t len);

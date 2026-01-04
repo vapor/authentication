@@ -155,8 +155,8 @@ vapor_auth_bcrypt_hashpass(const char *_Nonnull __counted_by(keysize) key __noes
 
 
 	snprintf(encrypted, 8, "$2%c$%2.2u$", minor, logr);
-	vapor_auth_encode_base64(encrypted + 7, csalt, BCRYPT_MAXSALT);
-	vapor_auth_encode_base64(encrypted + 7 + 22, ciphertext, 4 * BCRYPT_WORDS - 1);
+	vapor_auth_encode_base64(encrypted + 7, csalt, encryptedlen, BCRYPT_MAXSALT);
+	vapor_auth_encode_base64(encrypted + 7 + 22, ciphertext, encryptedlen, 4 * BCRYPT_WORDS - 1);
 	explicit_bzero(&state, sizeof(state));
 	explicit_bzero(ciphertext, sizeof(ciphertext));
 	explicit_bzero(csalt, sizeof(csalt));
@@ -238,7 +238,10 @@ decode_base64(u_int8_t *buffer, size_t len, const char *b64data)
  * This works without = padding.
  */
 int
-vapor_auth_encode_base64(char *b64buffer, const u_int8_t *__counted_by(len)data __noescape, size_t len)
+vapor_auth_encode_base64(char *_Nonnull __counted_by(bufferlen) b64buffer __noescape,
+                         const u_int8_t *_Nonnull __counted_by(len) data __noescape,
+                         size_t bufferlen,
+                         size_t len)
 {
     u_int8_t *bp = (u_int8_t *)b64buffer;
 	const u_int8_t *p = data;

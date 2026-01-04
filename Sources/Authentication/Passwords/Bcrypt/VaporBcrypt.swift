@@ -180,7 +180,8 @@ public enum VaporBcrypt: Sendable {
     /// - returns: Base 64 encoded plaintext
     private static func base64Encode(_ data: [UInt8]) throws(BcryptError) -> String {
         var encodedStringBytes = [CChar](repeating: 0, count: 25)
-        let result = unsafe vapor_auth_encode_base64(&encodedStringBytes, data.span)
+        var span = encodedStringBytes.mutableSpan
+        let result = vapor_auth_encode_base64(&span, data.span)
         // Remove null terminated characters
         let cleanedString = Array(encodedStringBytes.prefix { $0 != 0 })
         guard result == 0, let encodedString = String(validating: cleanedString, as: UTF8.self) else {
