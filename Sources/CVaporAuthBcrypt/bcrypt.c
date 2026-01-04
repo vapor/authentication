@@ -50,10 +50,12 @@ static int decode_base64(u_int8_t *, size_t, const char *);
  * the core bcrypt function
  */
 int
-vapor_auth_bcrypt_hashpass(
-                           const char *key,
-                           const char *salt,
-                           char *__counted_by(encryptedlen) encrypted __noescape,
+vapor_auth_bcrypt_hashpass(const char *_Nonnull __counted_by(keysize) key __noescape,
+                           const char *_Nonnull __counted_by(saltsize) salt __noescape,
+                           char *_Nonnull __counted_by(encryptedlen)
+                           encrypted __noescape,
+                           size_t keysize,
+                           size_t saltsize,
                            size_t encryptedlen)
 {
     blf_ctx state;
@@ -75,6 +77,10 @@ vapor_auth_bcrypt_hashpass(
 
 	if (salt[0] != BCRYPT_VERSION)
 		goto inval;
+
+    /* keysize is the size of the key including a null terminator */
+    if ((strlen(key) + 1) != keysize)
+        goto inval;
 
 	/* Check for minor versions */
 	switch ((minor = salt[1])) {

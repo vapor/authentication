@@ -83,7 +83,7 @@ public enum VaporBcrypt: Sendable {
 
         var hashData = [CChar](repeating: 0, count: 128)
         var hashDataSpan = hashData.mutableSpan
-        let result = unsafe vapor_auth_bcrypt_hashpass(plaintext, normalizedSalt, &hashDataSpan)
+        let result = vapor_auth_bcrypt_hashpass(plaintext.utf8CString.span, normalizedSalt.utf8CString.span, &hashDataSpan)
         guard result == 0 else {
             throw BcryptError.hashFailure
         }
