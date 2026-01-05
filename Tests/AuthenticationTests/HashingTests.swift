@@ -3,6 +3,7 @@ import Testing
 
 @Suite("Password Tests")
 struct PasswordTests {
+    #if bcrypt
     @Test("BcryptHasher hashes and verifies passwords")
     func bcryptHasher() throws {
         let hash = try VaporBcrypt.hash("vapor")
@@ -17,6 +18,7 @@ struct PasswordTests {
         #expect(try hasher.verify("vapor", created: hash2))
         #expect(try VaporBcrypt.verify("vapor", created: hash2))
     }
+    #endif
 
     @Test("PlaintextHasher hashes and verifies passwords")
     func plaintextHasher() throws {

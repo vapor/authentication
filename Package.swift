@@ -1,4 +1,5 @@
-// swift-tools-version:6.2.3
+// swift-tools-version:6.2
+// This should really be 6.2.3, but Xcode yet again has a bug
 import PackageDescription
 
 let extraSettings: [SwiftSetting] = [
@@ -29,6 +30,14 @@ let package = Package(
     products: [
         .library(name: "Authentication", targets: ["Authentication"])
     ],
+    traits: [
+        .trait(name: "bcrypt"),
+        .trait(name: "OTP"),
+        .default(enabledTraits: [
+            "bcrypt",
+            "OTP",
+        ]),
+    ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-crypto.git", from: "4.0.0")
     ],
@@ -43,8 +52,8 @@ let package = Package(
         .target(
             name: "Authentication",
             dependencies: [
-                .target(name: "CVaporAuthBcrypt"),
-                .product(name: "Crypto", package: "swift-crypto"),
+                .target(name: "CVaporAuthBcrypt", condition: .when(traits: ["bcrypt"])),
+                .product(name: "Crypto", package: "swift-crypto", condition: .when(traits: ["bcrypt", "OTP"])),
             ],
             swiftSettings: extraSettings
         ),

@@ -1,3 +1,4 @@
+#if bcrypt
 import Authentication
 import Testing
 
@@ -66,3 +67,4 @@ struct BcryptTests {
         #expect(result)
     }
 }
+#endif
