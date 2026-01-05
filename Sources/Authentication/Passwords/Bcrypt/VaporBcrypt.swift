@@ -1,9 +1,10 @@
+#if bcrypt
 internal import CVaporAuthBcrypt
 
 #if canImport(FoundationEssentials)
-public import Foundation
+internal import FoundationEssentials
 #else
-public import Foundation
+internal import Foundation
 #endif
 
 // MARK: bcrypt
@@ -28,7 +29,7 @@ public enum VaporBcrypt: Sendable {
     ///     - cost: Desired complexity. Larger `cost` values take longer to hash and verify. Default is 12.
     /// - throws: ``BcryptError`` if hashing fails or if data conversion fails.
     /// - returns: Newly created bcrypt hash.
-    public static func hash(_ plaintext: String, cost: Int = 12) throws -> String {
+    public static func hash(_ plaintext: String, cost: Int = 12) throws(BcryptError) -> String {
         guard cost >= BCRYPT_MINLOGROUNDS && cost <= 31 else {
             throw BcryptError.invalidCost
         }
@@ -52,7 +53,7 @@ public enum VaporBcrypt: Sendable {
     ///   - salt: A valid bcrypt salt (22 or 29 characters).
     /// - Returns: The bcrypt hash string.
     /// - Throws: ``BcryptError/invalidSalt`` if the salt format is invalid, or ``BcryptError/hashFailure`` if hashing fails.
-    public static func hash(_ plaintext: String, salt: String) throws -> String {
+    public static func hash(_ plaintext: String, salt: String) throws(BcryptError) -> String {
         guard isSaltValid(salt) else {
             throw BcryptError.invalidSalt
         }
@@ -80,13 +81,15 @@ public enum VaporBcrypt: Sendable {
             normalizedSalt = salt
         }
 
-        var hashData = [Int8](repeating: 0, count: 128)
+        var hashData = [CChar](repeating: 0, count: 128)
         var hashDataSpan = hashData.mutableSpan
-        let result = unsafe vapor_auth_bcrypt_hashpass(plaintext, normalizedSalt, &hashDataSpan)
+        let result = vapor_auth_bcrypt_hashpass(plaintext.utf8CString.span, normalizedSalt.utf8CString.span, &hashDataSpan)
         guard result == 0 else {
             throw BcryptError.hashFailure
         }
-        guard let string = String(utf8String: hashData) else {
+        // Remove null terminated characters
+        let cleanedHashData = Array(hashData.prefix { $0 != 0 })
+        guard let string = String(validating: cleanedHashData, as: UTF8.self) else {
             throw BcryptError.internalError
         }
 
@@ -103,9 +106,9 @@ public enum VaporBcrypt: Sendable {
     /// - parameters:
     ///     - plaintext: Plaintext data to digest and verify.
     ///     - hash: Existing bcrypt hash to parse version, salt, and existing digest from.
-    /// - throws: `CryptoError` if hashing fails or if data conversion fails.
+    /// - throws: `BcryptError` if hashing fails or if data conversion fails.
     /// - returns: `true` if the hash was created from the supplied plaintext data.
-    public static func verify(_ plaintext: String, created hash: String) throws -> Bool {
+    public static func verify(_ plaintext: String, created hash: String) throws(BcryptError) -> Bool {
         guard let hashVersion = Algorithm(rawValue: String(hash.prefix(4))) else {
             throw BcryptError.invalidHash
         }
@@ -141,7 +144,7 @@ public enum VaporBcrypt: Sendable {
     ///     - algorithm: Revision to use (2b by default)
     ///     - seed: Salt (without revision data). Generated if not provided. Must be 16 chars long.
     /// - returns: Complete salt
-    private static func generateSalt(cost: Int, algorithm: Algorithm = ._2b, seed: [UInt8]? = nil) throws -> String {
+    private static func generateSalt(cost: Int, algorithm: Algorithm = ._2b, seed: [UInt8]? = nil) throws(BcryptError) -> String {
         let randomData: [UInt8]
         if let seed = seed {
             randomData = seed
@@ -175,10 +178,13 @@ public enum VaporBcrypt: Sendable {
     /// - parameters:
     ///     - data: Data to be base64 encoded.
     /// - returns: Base 64 encoded plaintext
-    private static func base64Encode(_ data: [UInt8]) throws -> String {
-        var encodedStringBytes = [Int8](repeating: 0, count: 25)
-        let result = unsafe vapor_auth_encode_base64(&encodedStringBytes, data.span)
-        guard result == 0, let encodedString = String(utf8String: encodedStringBytes) else {
+    private static func base64Encode(_ data: [UInt8]) throws(BcryptError) -> String {
+        var encodedStringBytes = [CChar](repeating: 0, count: 25)
+        var span = encodedStringBytes.mutableSpan
+        let result = vapor_auth_encode_base64(&span, data.span)
+        // Remove null terminated characters
+        let cleanedString = Array(encodedStringBytes.prefix { $0 != 0 })
+        guard result == 0, let encodedString = String(validating: cleanedString, as: UTF8.self) else {
             throw BcryptError.internalError
         }
         return encodedString
@@ -215,37 +221,6 @@ public enum VaporBcrypt: Sendable {
     }
 }
 
-public enum BcryptError: Swift.Error, CustomStringConvertible, LocalizedError, Sendable {
-    case invalidCost
-    case invalidSalt
-    case hashFailure
-    case invalidHash
-    case internalError
-
-    public var errorDescription: String? {
-        return self.description
-    }
-
-    public var description: String {
-        return "bcrypt error: \(self.reason)"
-    }
-
-    var reason: String {
-        switch self {
-        case .invalidCost:
-            return "Cost should be between 4 and 31"
-        case .invalidSalt:
-            return "Provided salt has the incorrect format"
-        case .hashFailure:
-            return "Unable to compute hash"
-        case .invalidHash:
-            return "Invalid hash formatting"
-        case .internalError:
-            return "Internal bcrypt error"
-        }
-    }
-}
-
 extension Array where Element == UInt8 {
     static func random(count: Int) -> [Element] {
         var array: [Element] = .init(repeating: 0, count: count)
@@ -255,3 +230,4 @@ extension Array where Element == UInt8 {
         return array
     }
 }
+#endif

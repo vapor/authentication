@@ -6,3 +6,4 @@ Package.pins
 DerivedData/
 Package.resolved
 .swiftpm/
+.claude/

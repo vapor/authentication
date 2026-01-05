@@ -1,3 +1,4 @@
+#if bcrypt
 #if canImport(FoundationEssentials)
 public import FoundationEssentials
 #else
@@ -12,7 +13,7 @@ public struct BcryptHasher: PasswordHasher {
 
     public func hash<Password>(
         _ password: Password
-    ) throws -> [UInt8]
+    ) throws(BcryptError) -> [UInt8]
     where Password: DataProtocol {
         let string = String(decoding: password, as: UTF8.self)
         let digest = try VaporBcrypt.hash(string, cost: self.cost)
@@ -22,7 +23,7 @@ public struct BcryptHasher: PasswordHasher {
     public func verify<Password, Digest>(
         _ password: Password,
         created digest: Digest
-    ) throws -> Bool
+    ) throws(BcryptError) -> Bool
     where Password: DataProtocol, Digest: DataProtocol {
         try VaporBcrypt.verify(
             String(decoding: password.copyBytes(), as: UTF8.self),
@@ -30,9 +31,4 @@ public struct BcryptHasher: PasswordHasher {
         )
     }
 }
-
-extension DataProtocol {
-    func copyBytes() -> [UInt8] {
-        Array(self)
-    }
-}
+#endif
