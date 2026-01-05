@@ -1,4 +1,5 @@
-public import CryptoExtras
+#if PBKDF2
+import CryptoExtras
 
 #if canImport(FoundationEssentials)
 public import FoundationEssentials
@@ -14,7 +15,7 @@ public import Foundation
 /// This format is compatible with passlib and other common PBKDF2 implementations.
 /// See: https://passlib.readthedocs.io/en/stable/lib/passlib.hash.pbkdf2_digest.html
 public struct PBKDF2Hasher: PasswordHasher {
-    let pseudoRandomFunction: KDF.Insecure.PBKDF2.HashFunction
+    let pseudoRandomFunction: HashFunction
     let outputByteCount: Int
     let iterations: Int
 
@@ -27,7 +28,7 @@ public struct PBKDF2Hasher: PasswordHasher {
     /// - Note: the parameters passed in here will only be used for hashing, verification
     /// will rely solely on the parameters inside of the hash.
     public init(
-        pseudoRandomFunction: KDF.Insecure.PBKDF2.HashFunction = .sha256,
+        pseudoRandomFunction: HashFunction = .sha256,
         iterations: Int? = nil
     ) {
         self.pseudoRandomFunction = pseudoRandomFunction
@@ -41,7 +42,6 @@ public struct PBKDF2Hasher: PasswordHasher {
             case .insecureSHA1: 1_300_000
             case .insecureSHA224: 800_000
             case .insecureMD5: 1_600_000
-            default: fatalError("Unsupported hash function")
             }
         self.iterations = iterations ?? defaultIterations
 
@@ -53,7 +53,6 @@ public struct PBKDF2Hasher: PasswordHasher {
             case .insecureSHA224: 28
             case .insecureSHA1: 20
             case .insecureMD5: 16
-            default: fatalError("Unsupported hash function")
             }
     }
 
@@ -66,7 +65,7 @@ public struct PBKDF2Hasher: PasswordHasher {
         let key = try KDF.Insecure.PBKDF2.deriveKey(
             from: password,
             salt: salt,
-            using: pseudoRandomFunction,
+            using: pseudoRandomFunction.cryptoHashFunction,
             outputByteCount: outputByteCount,
             unsafeUncheckedRounds: iterations
         )
@@ -74,7 +73,7 @@ public struct PBKDF2Hasher: PasswordHasher {
         let keyData = unsafe key.withUnsafeBytes { unsafe Data($0) }
 
         // $pbkdf2-<alg>$<iterations>$<b64salt>$<b64hash>
-        let algorithmId = Self.algorithmIdentifier(for: pseudoRandomFunction)
+        let algorithmId = pseudoRandomFunction.rawValue
         let b64Salt = Data(salt).base64EncodedString()
         let b64Hash = keyData.base64EncodedString()
 
@@ -100,7 +99,7 @@ public struct PBKDF2Hasher: PasswordHasher {
         let key = try KDF.Insecure.PBKDF2.deriveKey(
             from: password,
             salt: parsed.salt,
-            using: parsed.algorithm,
+            using: parsed.algorithm.cryptoHashFunction,
             outputByteCount: parsed.hash.count,
             unsafeUncheckedRounds: parsed.iterations
         )
@@ -111,7 +110,7 @@ public struct PBKDF2Hasher: PasswordHasher {
     }
 
     private struct ParsedPassword {
-        let algorithm: KDF.Insecure.PBKDF2.HashFunction
+        let algorithm: HashFunction
         let iterations: Int
         let salt: [UInt8]
         let hash: [UInt8]
@@ -126,7 +125,7 @@ public struct PBKDF2Hasher: PasswordHasher {
         let algPart = String(parts[0])
         guard
             algPart.hasPrefix("pbkdf2-"),
-            let algorithm = hashFunction(from: String(algPart.dropFirst(7)))
+            let algorithm = HashFunction(rawValue: String(algPart.dropFirst(7)))
         else {
             return nil
         }
@@ -154,27 +153,25 @@ public struct PBKDF2Hasher: PasswordHasher {
         )
     }
 
-    private static func algorithmIdentifier(for hashFunction: KDF.Insecure.PBKDF2.HashFunction) -> String {
-        switch hashFunction {
-        case .sha256: "sha256"
-        case .sha384: "sha384"
-        case .sha512: "sha512"
-        case .insecureSHA1: "sha1"
-        case .insecureSHA224: "sha224"
-        case .insecureMD5: "md5"
-        default: fatalError("Unsupported hash function")
-        }
-    }
+    @nonexhaustive
+    public enum HashFunction: String, Sendable {
+        case insecureMD5 = "insecure_md5"
+        case insecureSHA1 = "insecure_sha1"
+        case insecureSHA224 = "insecure_sha224"
+        case sha256 = "sha256"
+        case sha384 = "sha384"
+        case sha512 = "sha512"
 
-    private static func hashFunction(from identifier: String) -> KDF.Insecure.PBKDF2.HashFunction? {
-        switch identifier {
-        case "sha256": .sha256
-        case "sha384": .sha384
-        case "sha512": .sha512
-        case "sha1": .insecureSHA1
-        case "sha224": .insecureSHA224
-        case "md5": .insecureMD5
-        default: nil
+        var cryptoHashFunction: KDF.Insecure.PBKDF2.HashFunction {
+            switch self {
+            case .insecureMD5: .insecureMD5
+            case .insecureSHA1: .insecureSHA1
+            case .insecureSHA224: .insecureSHA224
+            case .sha256: .sha256
+            case .sha384: .sha384
+            case .sha512: .sha512
+            }
         }
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if PBKDF2
 import Authentication
 import CryptoExtras
 import Testing
@@ -108,13 +109,13 @@ struct PBKDF2Tests {
     @Test(
         "All supported hash functions work",
         arguments: [
-            KDF.Insecure.PBKDF2.HashFunction.sha256,
-            KDF.Insecure.PBKDF2.HashFunction.sha384,
-            KDF.Insecure.PBKDF2.HashFunction.sha512,
-            KDF.Insecure.PBKDF2.HashFunction.insecureSHA1,
-            KDF.Insecure.PBKDF2.HashFunction.insecureSHA224,
+            PBKDF2Hasher.HashFunction.sha256,
+            PBKDF2Hasher.HashFunction.sha384,
+            PBKDF2Hasher.HashFunction.sha512,
+            PBKDF2Hasher.HashFunction.insecureSHA1,
+            PBKDF2Hasher.HashFunction.insecureSHA224,
         ])
-    func allHashFunctions(hashFunction: KDF.Insecure.PBKDF2.HashFunction) throws {
+    func allHashFunctions(hashFunction: PBKDF2Hasher.HashFunction) throws {
         let hasher = PBKDF2Hasher(pseudoRandomFunction: hashFunction, iterations: 1000)
         let password = "testAllFunctions"
         let digest = try hasher.hash(password)
@@ -122,3 +123,4 @@ struct PBKDF2Tests {
         #expect(result, "Hash function should work for hashing and verification")
     }
 }
+#endif

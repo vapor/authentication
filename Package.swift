@@ -1,4 +1,4 @@
-// swift-tools-version:6.2
+// swift-tools-version:6.2.3
 import PackageDescription
 
 let extraSettings: [SwiftSetting] = [
@@ -28,6 +28,13 @@ let package = Package(
     ],
     products: [
         .library(name: "Authentication", targets: ["Authentication"])
+    ],
+    traits: [
+        .init(
+            name: "PBKDF2",
+            description: "A password hasher using PBKDF2"
+        ),
+        .default(enabledTraits: []),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-crypto.git", from: "4.0.0")
