@@ -33,7 +33,7 @@ let package = Package(
     traits: [
         .trait(name: "bcrypt"),
         .trait(name: "OTP"),
-        .trait(name: "PBKDF2",),
+        .trait(name: "PBKDF2"),
         .default(enabledTraits: [
             "bcrypt",
             "OTP",
