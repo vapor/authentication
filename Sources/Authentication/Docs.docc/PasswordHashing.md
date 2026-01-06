@@ -10,6 +10,8 @@ The Authentication library provides a robust password hashing system built on th
 - **Built-in salting**: Each hash includes a unique random salt
 - **Timing-safe comparison**: Prevents timing attacks during verification
 
+If you prefer, you can also use the PBKDF2 algorithm for password hashing by utilizing the `PBKDF2Hasher`. PBKDF2 is a general key derivation function that is widely used for securely hashing passwords. It is considered less secure than bcrypt against modern hardware attacks.
+
 ### Basic Usage
 
 #### ``PasswordHasher``
@@ -41,7 +43,27 @@ let isValid = try hasher.verify("secretPassword123", created: hash)
 // isValid == true
 ```
 
-### Configuring Cost
+#### ``PBKDF2Hasher``
+
+Use ``PBKDF2Hasher`` to hash and verify passwords using the PBKDF2 algorithm:
+
+```swift
+import Authentication
+
+// Create a PBKDF2 hasher with default settings (SHA256, 600,000 iterations)
+let hasher = PBKDF2Hasher()
+
+// Hash a password
+let hash = try hasher.hash("secretPassword123")
+
+// Verify a password against a hash
+let isValid = try hasher.verify("secretPassword123", created: hash)
+// isValid == true
+```
+
+### Configuration
+
+#### Bcrypt
 
 The cost parameter controls how computationally expensive the hashing operation is. Higher costs provide more security but take longer to compute. The default cost of 12 is suitable for most applications.
 
@@ -53,6 +75,19 @@ let hash = try hasher.hash("myPassword")
 ```
 
 > Important: Increasing the cost by 1 doubles the computation time. A cost of 12 takes approximately 250ms on modern hardware. Choose a cost that provides adequate security while maintaining acceptable response times for your users.
+
+#### PBKDF2
+
+In PBKDF2, you can configure the number of iterations and hashing function. There are sensible standards in place already depending on the hash algorithm used, so only adjust the iterations if necessary:
+
+```swift
+// Create a PBKDF2 hasher with custom iterations
+let hasher = PBKDF2Hasher(
+    pseudoRandomFunction: .sha256,
+    iterations: 600_000,
+)
+let hash = try hasher.hash("myPassword")
+```
 
 ### Low-Level API
 
@@ -66,6 +101,25 @@ let hash = try VaporBcrypt.hash("password", cost: 12)
 
 // Verify password
 let isValid = try VaporBcrypt.verify("password", created: hash)
+```
+
+Or, for PBKDF2,:
+
+```swift
+import Authentication
+
+// Hash with explicit parameters
+let hash = try PBKDF2Hasher.hash(
+    Array("password".utf8),
+    pseudoRandomFunction: .sha256,
+    iterations: 600_000
+)
+
+// Verify password
+let isValid = try PBKDF2Hasher.verify(
+    Array("password".utf8),
+    created: hash
+)
 ```
 
 ### Testing with PlaintextHasher

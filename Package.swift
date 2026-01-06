@@ -33,6 +33,7 @@ let package = Package(
     traits: [
         .trait(name: "bcrypt"),
         .trait(name: "OTP"),
+        .trait(name: "PBKDF2"),
         .default(enabledTraits: [
             "bcrypt",
             "OTP",
@@ -54,6 +55,7 @@ let package = Package(
             dependencies: [
                 .target(name: "CVaporAuthBcrypt", condition: .when(traits: ["bcrypt"])),
                 .product(name: "Crypto", package: "swift-crypto", condition: .when(traits: ["bcrypt", "OTP"])),
+                .product(name: "CryptoExtras", package: "swift-crypto", condition: .when(traits: ["PBKDF2"])),
             ],
             swiftSettings: extraSettings
         ),
