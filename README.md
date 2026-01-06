@@ -37,13 +37,15 @@ targets: [
 
 ## Password Hashing
 
-Securely hash and verify user passwords using the bcrypt algorithm or the `PasswordHasher` algorithm:
+Securely hash and verify user passwords using the bcrypt algorithm, the `PasswordHasher` protocol or the PBKDF2 algorithm:
 
 ```swift
 import Authentication
 
 // Create a hasher with default cost (12)
 let hasher = BcryptHasher()
+// Or use PBKDF2
+let hasher = PBKDF2Hasher()
 // Or a hasher injected in
 let hasher: PasswordHasher
 
@@ -55,18 +57,34 @@ let isValid = try hasher.verify("secretPassword123", created: hash)
 // isValid == true
 ```
 
-### Configuring Cost
+### Configuration
+
+#### Bcrypt
 
 The cost parameter controls how computationally expensive the hashing operation is. Higher costs provide more security but take longer to compute:
 
 ```swift
-// Create a hasher with custom cost (valid range: 4-31)
+// Create a bcrypt hasher with custom cost (valid range: 4-31)
 let hasher = BcryptHasher(cost: 14)
 
 let hash = try hasher.hash("myPassword")
 ```
 
 > **Note**: Increasing the cost by 1 doubles the computation time. A cost of 12 takes approximately 250ms on modern hardware.
+
+#### PBKDF2
+
+In PBKDF2 you can configure the number of iterations and hashing function. There are sensible standards in place already depending on the hash algorithm used, so only adjust the iterations if necessary:
+
+```swift
+// Create a PBKDF2 hasher with custom iterations
+let hasher = PBKDF2Hasher(
+    pseudoRandomFunction: .sha256,
+    iterations: 600_000,
+)
+let hash = try hasher.hash("myPassword")
+```
+
 
 ## One-Time Passwords (OTP)
 
