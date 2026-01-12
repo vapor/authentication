@@ -1,0 +1,177 @@
+#if PBKDF2
+import CryptoExtras
+
+#if canImport(FoundationEssentials)
+public import FoundationEssentials
+#else
+public import Foundation
+#endif
+
+/// A password hasher using PBKDF2 with configurable hash function and iterations.
+///
+/// The output format is a modular crypt format string:
+/// `$pbkdf2-<algorithm>$<iterations>$<base64-salt>$<base64-hash>`
+///
+/// This format is compatible with passlib and other common PBKDF2 implementations.
+/// See: https://passlib.readthedocs.io/en/stable/lib/passlib.hash.pbkdf2_digest.html
+public struct PBKDF2Hasher: PasswordHasher {
+    let pseudoRandomFunction: HashFunction
+    let outputByteCount: Int
+    let iterations: Int
+
+    /// Creates a PBKDF2 password hasher.
+    ///
+    /// - Parameters:
+    ///   - pseudoRandomFunction: The hash function to use. Defaults to SHA-256.
+    ///   - iterations: The number of PBKDF2 iterations. If nil, uses OWASP-recommended
+    ///     defaults based on the hash function.
+    /// - Note: the parameters passed in here will only be used for hashing, verification
+    /// will rely solely on the parameters inside of the hash.
+    public init(
+        pseudoRandomFunction: HashFunction = .sha256,
+        iterations: Int? = nil
+    ) {
+        self.pseudoRandomFunction = pseudoRandomFunction
+
+        // OWASP recommendations: https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#pbkdf2
+        let defaultIterations: Int =
+            switch pseudoRandomFunction {
+            case .sha256: 600_000
+            case .sha384: 400_000
+            case .sha512: 210_000
+            case .insecureSHA1: 1_300_000
+            case .insecureSHA224: 800_000
+            case .insecureMD5: 1_600_000
+            }
+        self.iterations = iterations ?? defaultIterations
+
+        self.outputByteCount =
+            switch pseudoRandomFunction {
+            case .sha256: 32
+            case .sha384: 48
+            case .sha512: 64
+            case .insecureSHA224: 28
+            case .insecureSHA1: 20
+            case .insecureMD5: 16
+            }
+    }
+
+    /// Hashes a password using PBKDF2.
+    ///
+    /// - Parameter password: The password to hash.
+    /// - Returns: The hash string as UTF-8 bytes.
+    public func hash<Password>(_ password: Password) throws -> [UInt8] where Password: DataProtocol {
+        let salt = [UInt8].random(count: 16)
+        let key = try KDF.Insecure.PBKDF2.deriveKey(
+            from: password,
+            salt: salt,
+            using: pseudoRandomFunction.cryptoHashFunction,
+            outputByteCount: outputByteCount,
+            unsafeUncheckedRounds: iterations
+        )
+
+        let keyData = unsafe key.withUnsafeBytes { unsafe Data($0) }
+
+        // $pbkdf2-<alg>$<iterations>$<b64salt>$<b64hash>
+        let algorithmId = pseudoRandomFunction.rawValue
+        let b64Salt = Data(salt).base64EncodedString()
+        let b64Hash = keyData.base64EncodedString()
+
+        let passwordString = "$pbkdf2-\(algorithmId)$\(iterations)$\(b64Salt)$\(b64Hash)"
+        return Array(passwordString.utf8)
+    }
+
+    /// Verifies a password against a hash.
+    ///
+    /// - Parameters:
+    ///   - password: The password to verify.
+    ///   - digest: The stored hash.
+    /// - Returns: `true` if the password matches, `false` otherwise.
+    public func verify<Password, Digest>(_ password: Password, created digest: Digest) throws -> Bool
+    where Password: DataProtocol, Digest: DataProtocol {
+        guard !digest.isEmpty else { return false }
+
+        let digestString = String(decoding: digest, as: UTF8.self)
+        guard let parsed = Self.parsePassword(digestString), parsed.algorithm == pseudoRandomFunction else {
+            return false
+        }
+
+        let key = try KDF.Insecure.PBKDF2.deriveKey(
+            from: password,
+            salt: parsed.salt,
+            using: parsed.algorithm.cryptoHashFunction,
+            outputByteCount: parsed.hash.count,
+            unsafeUncheckedRounds: parsed.iterations
+        )
+
+        let keyData = unsafe key.withUnsafeBytes { unsafe Data($0) }
+
+        return keyData.elementsEqual(parsed.hash)
+    }
+
+    private struct ParsedPassword {
+        let algorithm: HashFunction
+        let iterations: Int
+        let salt: [UInt8]
+        let hash: [UInt8]
+    }
+
+    private static func parsePassword(_ string: String) -> ParsedPassword? {
+        // Expected format: $pbkdf2-<alg>$<iterations>$<b64salt>$<b64hash>
+        let parts = string.split(separator: "$", omittingEmptySubsequences: true)
+        guard parts.count == 4 else { return nil }
+
+        // Parse algorithm
+        let algPart = String(parts[0])
+        guard
+            algPart.hasPrefix("pbkdf2-"),
+            let algorithm = HashFunction(rawValue: String(algPart.dropFirst(7)))
+        else {
+            return nil
+        }
+
+        // Parse iterations
+        guard let iterations = Int(parts[1]) else {
+            return nil
+        }
+
+        // Parse salt
+        guard let saltData = Data(base64Encoded: String(parts[2])) else {
+            return nil
+        }
+
+        // Parse hash
+        guard let hashData = Data(base64Encoded: String(parts[3])) else {
+            return nil
+        }
+
+        return ParsedPassword(
+            algorithm: algorithm,
+            iterations: iterations,
+            salt: Array(saltData),
+            hash: Array(hashData)
+        )
+    }
+
+    @nonexhaustive
+    public enum HashFunction: String, Sendable {
+        case insecureMD5 = "insecure_md5"
+        case insecureSHA1 = "insecure_sha1"
+        case insecureSHA224 = "insecure_sha224"
+        case sha256 = "sha256"
+        case sha384 = "sha384"
+        case sha512 = "sha512"
+
+        var cryptoHashFunction: KDF.Insecure.PBKDF2.HashFunction {
+            switch self {
+            case .insecureMD5: .insecureMD5
+            case .insecureSHA1: .insecureSHA1
+            case .insecureSHA224: .insecureSHA224
+            case .sha256: .sha256
+            case .sha384: .sha384
+            case .sha512: .sha512
+            }
+        }
+    }
+}
+#endif
