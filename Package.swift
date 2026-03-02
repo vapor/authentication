@@ -1,5 +1,4 @@
-// swift-tools-version:6.2
-// This should really be 6.2.3, but Xcode yet again has a bug
+// swift-tools-version:6.2.4
 import PackageDescription
 
 let extraSettings: [SwiftSetting] = [
