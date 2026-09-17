@@ -5,7 +5,7 @@
   "indentation": {
     "spaces": 4
   },
-  "indentConditionalCompilationBlocks": false,
+  "indentConditionalCompilationBlocks": true,
   "indentSwitchCaseLabels": false,
   "lineBreakAroundMultilineExpressionChainComponents": false,
   "lineBreakBeforeControlFlowKeywords": false,
@@ -14,7 +14,6 @@
   "lineLength": 140,
   "maximumBlankLines": 1,
   "multiElementCollectionTrailingCommas": true,
-  "multilineTrailingCommaBehavior": "always",
   "noAssignmentInExpressions": {
     "allowedFunctions": [
       "XCTAssertNoThrow"

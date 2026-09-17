@@ -1,19 +1,21 @@
-// swift-tools-version:6.2.4
+// swift-tools-version:6.3
 import PackageDescription
 
 let extraSettings: [SwiftSetting] = [
-    .enableExperimentalFeature("SuppressedAssociatedTypes"),
+    //    .treatAllWarnings(as: .error),
+    .strictMemorySafety(),
     .enableExperimentalFeature("LifetimeDependence"),
+    .enableExperimentalFeature("SuppressedAssociatedTypesWithDefaults"),
+    .enableExperimentalFeature("Lifetimes"),
+    .enableExperimentalFeature("SafeInteropWrappers"),
     .enableUpcomingFeature("LifetimeDependence"),
     .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
     .enableUpcomingFeature("InferIsolatedConformances"),
     .enableUpcomingFeature("ExistentialAny"),
     .enableUpcomingFeature("MemberImportVisibility"),
     .enableUpcomingFeature("InternalImportsByDefault"),
-    //    .treatAllWarnings(as: .error),
-    .strictMemorySafety(),
-    .enableExperimentalFeature("SafeInteropWrappers"),
     .unsafeFlags(["-Xcc", "-fexperimental-bounds-safety-attributes"]),
+    .enableUpcomingFeature("ImmutableWeakCaptures"),
 ]
 
 let package = Package(
