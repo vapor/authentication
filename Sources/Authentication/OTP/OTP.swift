@@ -7,20 +7,6 @@
         public import Foundation
     #endif
 
-    #if canImport(Darwin)
-        internal import os
-    #elseif canImport(Bionic)
-        internal import Bionic
-    #elseif canImport(Glibc)
-        internal import Glibc
-    #elseif canImport(Musl)
-        internal import Musl
-    #elseif canImport(CRT)
-        internal import CRT
-    #elseif os(WASI)
-        internal import WASILibc
-    #endif
-
     /// Supported OTP output sizes.
     public enum OTPDigits: Int, Sendable {
         /// Six digits OTP.
@@ -71,7 +57,12 @@
         ) -> String {
             let hmac = Array(
                 HMAC<H>.authenticationCode(
-                    for: counter.bigEndian.data,
+                    for: Data([
+                        UInt8(truncatingIfNeeded: counter >> 56), UInt8(truncatingIfNeeded: counter >> 48),
+                        UInt8(truncatingIfNeeded: counter >> 40), UInt8(truncatingIfNeeded: counter >> 32),
+                        UInt8(truncatingIfNeeded: counter >> 24), UInt8(truncatingIfNeeded: counter >> 16),
+                        UInt8(truncatingIfNeeded: counter >> 8), UInt8(truncatingIfNeeded: counter >> 0),
+                    ]),
                     using: self.key
                 ))
             // Get the last 4 bits of the HMAC for use as offset
@@ -240,7 +231,7 @@
         public func generate(
             time: Date
         ) -> String {
-            let counter = Int(floor(time.timeIntervalSince1970) / Double(self.interval))
+            let counter = Int(time.timeIntervalSince1970.rounded(.down) / Double(self.interval))
             return _generate(counter: UInt64(counter))
         }
 
@@ -256,7 +247,7 @@
             time: Date,
             range: Int
         ) -> [String] {
-            let counter = Int(floor(time.timeIntervalSince1970) / Double(self.interval))
+            let counter = Int(time.timeIntervalSince1970.rounded(.down) / Double(self.interval))
             return _generate(counter: UInt64(counter), range: range)
         }
 
@@ -276,14 +267,6 @@
             time: Date
         ) -> String {
             return Self.init(key: key, digest: digest, digits: digits, interval: interval).generate(time: time)
-        }
-    }
-
-    extension FixedWidthInteger {
-        /// The raw data representing the integer.
-        fileprivate var data: Data {
-            var copy = self
-            return unsafe .init(bytes: &copy, count: MemoryLayout<Self>.size)
         }
     }
 #endif
