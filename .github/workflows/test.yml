@@ -34,4 +34,4 @@ jobs:
     permissions:
       contents: read
     with:
-      swift_image: swift:6.3-noble
+      swift_image: swift:6.4-noble
