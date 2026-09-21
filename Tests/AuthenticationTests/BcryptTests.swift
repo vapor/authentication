@@ -38,6 +38,28 @@
             }
         }
 
+        @Test("Hash with full salt reproduces known hash")
+        func hashWithFullSalt() throws {
+            let hash = "$2a$04$TI13sbmh3IHnmRepeEFoJOkVZWsn5S1O8QOwm8ZU5gNIpJog9pXZm"
+            let digest = try VaporBcrypt.hash("vapor", salt: String(hash.prefix(29)))
+            #expect(digest == hash)
+        }
+
+        @Test("Hash with raw salt uses 2b and the default cost")
+        func hashWithRawSalt() throws {
+            let salt = "TI13sbmh3IHnmRepeEFoJO"
+            let digest = try VaporBcrypt.hash("vapor", salt: salt)
+            #expect(digest.hasPrefix("$2b$12$" + salt))
+            #expect(try VaporBcrypt.verify("vapor", created: digest))
+        }
+
+        @Test("Hash with malformed salt throws error", arguments: ["", "tooshort", "$2b$12$tooshort", "$2z$12$TI13sbmh3IHnmRepeEFoJO"])
+        func hashWithMalformedSalt(salt: String) {
+            #expect(throws: BcryptError.self) {
+                try VaporBcrypt.hash("vapor", salt: salt)
+            }
+        }
+
         @Test(
             "Verify known hashes",
             arguments: [
