@@ -1,19 +1,20 @@
-// swift-tools-version:6.2.4
+// swift-tools-version:6.4
 import PackageDescription
 
 let extraSettings: [SwiftSetting] = [
-    .enableExperimentalFeature("SuppressedAssociatedTypes"),
+    .treatAllWarnings(as: .error),
+    .strictMemorySafety(),
     .enableExperimentalFeature("LifetimeDependence"),
+    .enableExperimentalFeature("SuppressedAssociatedTypesWithDefaults"),
+    .enableExperimentalFeature("Lifetimes"),
+    .enableExperimentalFeature("SafeInteropWrappers"),
     .enableUpcomingFeature("LifetimeDependence"),
     .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
     .enableUpcomingFeature("InferIsolatedConformances"),
     .enableUpcomingFeature("ExistentialAny"),
     .enableUpcomingFeature("MemberImportVisibility"),
     .enableUpcomingFeature("InternalImportsByDefault"),
-    //    .treatAllWarnings(as: .error),
-    .strictMemorySafety(),
-    .enableExperimentalFeature("SafeInteropWrappers"),
-    .unsafeFlags(["-Xcc", "-fexperimental-bounds-safety-attributes"]),
+    .enableUpcomingFeature("ImmutableWeakCaptures"),
 ]
 
 let package = Package(
@@ -39,20 +40,14 @@ let package = Package(
         ]),
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-crypto.git", from: "4.0.0")
+        .package(url: "https://github.com/apple/swift-crypto.git", from: "4.0.0"),
+        .package(url: "https://github.com/ptoffy/bcrypt.git", .upToNextMinor(from: "0.5.0")),
     ],
     targets: [
         .target(
-            name: "CVaporAuthBcrypt",
-            cSettings: [
-                .define("ENABLE_C_BOUNDS_SAFETY")
-            ],
-            swiftSettings: extraSettings,
-        ),
-        .target(
             name: "Authentication",
             dependencies: [
-                .target(name: "CVaporAuthBcrypt", condition: .when(traits: ["bcrypt"])),
+                .product(name: "Bcrypt", package: "bcrypt", condition: .when(traits: ["bcrypt"])),
                 .product(name: "Crypto", package: "swift-crypto", condition: .when(traits: ["bcrypt", "OTP"])),
                 .product(name: "CryptoExtras", package: "swift-crypto", condition: .when(traits: ["PBKDF2"])),
             ],

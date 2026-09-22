@@ -1,4 +1,0 @@
-module CVaporAuthBcrypt [system][extern_c] {
- header "../bcrypt.h"
- export *
-}

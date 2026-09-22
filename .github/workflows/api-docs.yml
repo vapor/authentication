@@ -9,9 +9,7 @@ permissions:
 
 jobs:
   build-and-deploy:
-     uses: vapor/api-docs/.github/workflows/build-and-deploy-docs-workflow.yml@main
-     secrets: inherit
-     with:
-       package_name: authentication
-       modules: Authentication
-       pathsToInvalidate: /authentication/*
+    uses: vapor/api-docs/.github/workflows/deploy.yml@1905791f101ea5b9311754b77f1a606a88c6752c # main
+    secrets: inherit
+    with:
+      package: authentication

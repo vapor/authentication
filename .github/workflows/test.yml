@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   unit-tests:
-    uses: vapor/ci/.github/workflows/run-unit-tests.yml@main
+    uses: vapor/ci/.github/workflows/run-unit-tests.yml@86063c56edafba6c24009fca0db54a6a3bad4ea3 # main
     with:
       with_api_check: ${{ github.event_name == 'pull_request' }}
       warnings_as_errors: true
@@ -21,3 +21,17 @@ jobs:
       with_wasm: true
       ios_scheme_name: authentication
     secrets: inherit
+
+  submit-dependencies:
+    permissions:
+      contents: write
+    if: ${{ github.event_name == 'push' }}
+    uses: vapor/ci/.github/workflows/submit-deps.yml@86063c56edafba6c24009fca0db54a6a3bad4ea3 # main
+    secrets: inherit
+
+  foundation-linking:
+    uses: vapor/ci/.github/workflows/check-foundation-linking.yml@86063c56edafba6c24009fca0db54a6a3bad4ea3 # main
+    permissions:
+      contents: read
+    with:
+      swift_image: swift:6.4-noble

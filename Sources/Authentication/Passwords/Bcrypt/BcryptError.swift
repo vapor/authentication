@@ -1,4 +1,6 @@
 #if bcrypt
+internal import Bcrypt
+
 @nonexhaustive
 public enum BcryptError: Swift.Error, CustomStringConvertible, Sendable {
     case invalidCost
@@ -6,6 +8,8 @@ public enum BcryptError: Swift.Error, CustomStringConvertible, Sendable {
     case hashFailure
     case invalidHash
     case internalError
+    case emptyPassword
+    case passwordTooLong
 
     public var errorDescription: String? {
         return self.description
@@ -18,16 +22,33 @@ public enum BcryptError: Swift.Error, CustomStringConvertible, Sendable {
     var reason: String {
         switch self {
         case .invalidCost:
-            return "Cost should be between 4 and 31"
+            "Cost should be between 4 and 31"
         case .invalidSalt:
-            return "Provided salt has the incorrect format"
+            "Provided salt has the incorrect format"
         case .hashFailure:
-            return "Unable to compute hash"
+            "Unable to compute hash"
         case .invalidHash:
-            return "Invalid hash formatting"
+            "Invalid hash formatting"
         case .internalError:
-            return "Internal bcrypt error"
+            "Internal bcrypt error"
+        case .emptyPassword:
+            "Password must not be empty"
+        case .passwordTooLong:
+            "Password must not be longer than 72 bytes"
         }
+    }
+
+    /// Maps an error from the underlying `Bcrypt` implementation to the public ``BcryptError``.
+    init(_ error: Bcrypt::BcryptError) {
+        self =
+            switch error {
+            case .invalidCost: .invalidCost
+            case .invalidSalt, .invalidSaltLength, .invalidSettings: .invalidSalt
+            case .invalidHash, .invalidVersion: .invalidHash
+            case .emptyPassword: .emptyPassword
+            case .passwordTooLong: .passwordTooLong
+            @unknown default: .internalError
+            }
     }
 }
 #endif

@@ -38,6 +38,28 @@ struct BcryptTests {
         }
     }
 
+    @Test("Hash with full salt reproduces known hash")
+    func hashWithFullSalt() throws {
+        let hash = "$2a$04$TI13sbmh3IHnmRepeEFoJOkVZWsn5S1O8QOwm8ZU5gNIpJog9pXZm"
+        let digest = try VaporBcrypt.hash("vapor", salt: String(hash.prefix(29)))
+        #expect(digest == hash)
+    }
+
+    @Test("Hash with raw salt uses 2b and the default cost")
+    func hashWithRawSalt() throws {
+        let salt = "TI13sbmh3IHnmRepeEFoJO"
+        let digest = try VaporBcrypt.hash("vapor", salt: salt)
+        #expect(digest.hasPrefix("$2b$12$" + salt))
+        #expect(try VaporBcrypt.verify("vapor", created: digest))
+    }
+
+    @Test("Hash with malformed salt throws error", arguments: ["", "tooshort", "$2b$12$tooshort", "$2z$12$TI13sbmh3IHnmRepeEFoJO"])
+    func hashWithMalformedSalt(salt: String) {
+        #expect(throws: BcryptError.self) {
+            try VaporBcrypt.hash("vapor", salt: salt)
+        }
+    }
+
     @Test(
         "Verify known hashes",
         arguments: [
@@ -50,7 +72,6 @@ struct BcryptTests {
             ),
             (hash: "$2a$04$TI13sbmh3IHnmRepeEFoJOkVZWsn5S1O8QOwm8ZU5gNIpJog9pXZm", message: "vapor"),
             (hash: "$2y$11$kHM/VXmCVsGXDGIVu9mD8eY/uEYI.Nva9sHgrLYuLzr0il28DDOGO", message: "Vapor3"),
-            (hash: "$2a$06$DCq7YPn5Rq63x1Lad4cll.TV4S6ytwfsfvkgY8jIucDrjc8deX1s.", message: ""),
             (hash: "$2a$06$m0CrhHm10qJ3lXRY.5zDGO3rS2KdeeWLuGmsfGlMfOxih58VYVfxe", message: "a"),
             (hash: "$2a$06$If6bvum7DFjUnE9p2uDeDu0YHzrHM6tf.iqN8.yx.jNN1ILEf7h0i", message: "abc"),
             (hash: "$2a$06$.rCVZVOThsIa97pEDOxvGuRRgzG64bvtJ0938xuqzv18d3ZpQhstC", message: "abcdefghijklmnopqrstuvwxyz"),
